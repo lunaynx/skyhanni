@@ -18,12 +18,10 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent
 
 class EnderNodeTracker {
     private val config get() = SkyHanniMod.feature.misc.enderNodeTracker;
+    private val storage = ProfileStorageData.profileSpecific?.enderNodeTracker
 
-    private var totalNodesMined = 0
-    private var totalEndermiteNests = 0
     private var totalEnderArmor = 0
     private var display = emptyList<List<Any>>()
-    private var lootCount = mapOf<EnderNode, Int>()
     private var lootProfit = mapOf<EnderNode, Double>()
 
     private val enderNodeRegex = Regex("""ENDER NODE!.+You found (\d+x )?§r(.+)§r§f!""")
@@ -33,34 +31,34 @@ class EnderNodeTracker {
     fun onChat(event: LorenzChatEvent) {
         if (!ProfileStorageData.loaded) return
         if (!inTheEnd()) return
-
+        val hidden = storage ?: return
+        val lootCount = hidden.lootCount
         // don't call removeColor because we want to distinguish enderman pet rarity
         val message = event.message.trim()
-        var item: String? = null
+        var firstItem: String? = null
         var amount = 1
 
         // check whether the loot is from an ender node or an enderman
         enderNodeRegex.find(message)?.let {
-            totalNodesMined++
+            hidden.totalNodesMined++
             amount = it.groups[1]?.value?.substringBefore("x")?.toIntOrNull() ?: 1
-            item = it.groups[2]?.value
+            firstItem = it.groups[2]?.value
         } ?: endermanRegex.find(message)?.let {
             amount = 1
-            item = it.groups[2]?.value
+            firstItem = it.groups[2]?.value
         }
 
-        // log("item: " + item.toString())
-        if (item == null) return
+        var finalItem = firstItem ?: return
 
         when {
-            isEnderArmor(item) -> totalEnderArmor++
+            isEnderArmor(finalItem) -> totalEnderArmor++
 
-            item == "§cEndermite Nest" -> {
+            finalItem == "§cEndermite Nest" -> {
                 // this is oversimplified, it assumes an average of 3 nest endermites killed per nest dug up
-                totalEndermiteNests++
+                hidden.totalEndermiteNests++
                 val oldEndStone = lootCount[EnderNode.ENCHANTED_ENDSTONE] ?: 0
                 val oldMiteGel = lootCount[EnderNode.MITE_GEL] ?: 0
-                lootCount = lootCount.editCopy {
+                hidden.lootCount = lootCount.editCopy {
                     this[EnderNode.ENCHANTED_ENDSTONE] = oldEndStone + 3
                     this[EnderNode.MITE_GEL] = oldMiteGel + 3
                 }
@@ -68,9 +66,9 @@ class EnderNodeTracker {
         }
 
         // increment the count of the specific item found
-        EnderNode.entries.find { it.displayName == item }?.let {
+        EnderNode.entries.find { it.displayName == finalItem }?.let {
             val old = lootCount[it] ?: 0
-            lootCount = lootCount.editCopy {
+            hidden.lootCount = lootCount.editCopy {
                 this[it] = old + amount
             }
         }
@@ -86,17 +84,15 @@ class EnderNodeTracker {
 
     @SubscribeEvent
     fun onConfigLoad(event: ConfigLoadEvent) {
-        val hidden = ProfileStorageData.profileSpecific?.enderNodeTracker ?: return
-        totalNodesMined = hidden.totalNodesMined
-        totalEndermiteNests = hidden.totalEndermiteNests
-        lootCount = hidden.lootCount
+        val hidden = storage ?: return
         totalEnderArmor = hidden.lootCount.filter { isEnderArmor(it.key.displayName) }.map { it.value }.sum()
         saveAndUpdate()
     }
 
     private fun calculateProfit(): Map<EnderNode, Double> {
         val newProfit = mutableMapOf<EnderNode, Double>()
-        lootCount.forEach {
+        val lootCount = storage?.lootCount
+        lootCount?.forEach {
             val price = if (isEnderArmor(it.key.displayName)) {
                 10_000.0
             } else if (LorenzUtils.noTradeMode) {
@@ -111,28 +107,29 @@ class EnderNodeTracker {
     }
 
     private fun saveAndUpdate() {
-        val hidden = ProfileStorageData.profileSpecific?.enderNodeTracker ?: return
-        hidden.totalNodesMined = totalNodesMined
-        hidden.totalEndermiteNests = totalEndermiteNests
-        hidden.lootCount = lootCount
-
         lootProfit = calculateProfit()
         display = formatDisplay(drawDisplay())
     }
 
     private fun inTheEnd() = LorenzUtils.inIsland(IslandType.THE_END)
 
-    private fun isEnderArmor(displayName: String?) = when (displayName) {
+    private fun isEnderArmor(displayName: String) = when (displayName) {
         "§5Ender Helmet",
         "§5Ender Chestplate",
         "§5Ender Leggings",
         "§5Ender Boots",
         "§5Ender Necklace",
         "§5Ender Gauntlet" -> true
+
         else -> false
     }
 
     private fun drawDisplay() = buildList<List<Any>> {
+        val hidden = storage ?: return emptyList<List<Any>>()
+        val lootCount = hidden.lootCount
+        val totalNodesMined = hidden.totalNodesMined
+        val totalEndermiteNests = hidden.totalEndermiteNests
+
         addAsSingletonList("§5§lEnder Node Tracker")
         addAsSingletonList("§d${totalNodesMined.addSeparators()} Ender Nodes Mined")
         addAsSingletonList("§6${format(lootProfit.values.sum())} Coins Made")
