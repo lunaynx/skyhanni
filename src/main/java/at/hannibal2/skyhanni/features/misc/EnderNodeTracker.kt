@@ -18,7 +18,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent
 
 class EnderNodeTracker {
     private val config get() = SkyHanniMod.feature.misc.enderNodeTracker;
-    private val storage = ProfileStorageData.profileSpecific?.enderNodeTracker
+    private val storage get() = ProfileStorageData.profileSpecific?.enderNodeTracker
 
     private var totalEnderArmor = 0
     private var display = emptyList<List<Any>>()
@@ -92,16 +92,16 @@ class EnderNodeTracker {
     private fun calculateProfit(): Map<EnderNode, Double> {
         val newProfit = mutableMapOf<EnderNode, Double>()
         val lootCount = storage?.lootCount
-        lootCount?.forEach {
-            val price = if (isEnderArmor(it.key.displayName)) {
+        lootCount?.forEach { (node, _) ->
+            val price = if (isEnderArmor(node.displayName)) {
                 10_000.0
             } else if (LorenzUtils.noTradeMode) {
-                NEUItems.getPrice(it.key.internalName)
+                NEUItems.getPrice(node.internalName)
             } else {
-                val bzData = BazaarApi.getBazaarDataByInternalName(it.key.internalName)
-                bzData?.npcPrice?.coerceAtLeast(bzData.sellPrice) ?: NEUItems.getPrice(it.key.internalName)
+                val bzData = BazaarApi.getBazaarDataByInternalName_new(node.internalName)
+                bzData?.npcPrice?.coerceAtLeast(bzData.sellPrice) ?: NEUItems.getPrice(node.internalName)
             }
-            newProfit[it.key] = price * (lootCount[it.key] ?: 0)
+            newProfit[node] = price * (lootCount[node] ?: 0)
         }
         return newProfit
     }
