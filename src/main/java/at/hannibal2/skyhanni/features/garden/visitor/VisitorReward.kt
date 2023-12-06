@@ -15,6 +15,7 @@ enum class VisitorReward(private val rawInternalName: String, val displayName: S
     CULTIVATING("CULTIVATING;1", "§9Cultivating I", legacyId = 6),
     REPLENISH("REPLENISH;1", "§9Replenish I", legacyId = 7),
     DELICATE("DELICATE;5", "§9Delicate V"),
+    HARVEST_HARBINGER("POTION", "§9Harvest Harbinger V Potion"),
     ;
 
     private val internalName by lazy { rawInternalName.asInternalName() }
