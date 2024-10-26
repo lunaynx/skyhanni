@@ -91,7 +91,7 @@ object TheGreatSpook {
         }
         displayMobCooldown = Renderable.string(mobCooldownString)
 
-        if (config.primalFearNotification && mobCooldown.isInFuture()) {
+        if (config.primalFearNotification && mobCooldown.isInPast()) {
             SoundUtils.playPlingSound()
         }
 
