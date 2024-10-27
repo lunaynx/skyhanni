@@ -6,6 +6,7 @@ import at.hannibal2.skyhanni.events.LorenzChatEvent
 import at.hannibal2.skyhanni.events.LorenzWorldChangeEvent
 import at.hannibal2.skyhanni.skyhannimodule.SkyHanniModule
 import at.hannibal2.skyhanni.utils.LorenzUtils
+import at.hannibal2.skyhanni.utils.RegexUtils.matches
 import at.hannibal2.skyhanni.utils.RenderUtils.renderString
 import at.hannibal2.skyhanni.utils.SimpleTimeMark
 import at.hannibal2.skyhanni.utils.SoundUtils
@@ -26,10 +27,19 @@ object SkyBlockKickDuration {
     private var hasWarned = false
 
     private val patternGroup = RepoPattern.group("misc.kickduration")
+
+    /**
+     * REGEX-TEST: §cYou were kicked while joining that server!
+     * REGEX-TEST: §cA kick occurred in your connection, so you were put in the SkyBlock lobby!
+     */
     private val kickPattern by patternGroup.pattern(
         "kicked",
         "§c(?:You were kicked while joining that server!|A kick occurred in your connection, so you were put in the SkyBlock lobby!)",
     )
+
+    /**
+     * REGEX-TEST: §cThere was a problem joining SkyBlock, try again in a moment!
+     */
     private val problemJoiningPattern by patternGroup.pattern(
         "problemjoining",
         "§cThere was a problem joining SkyBlock, try again in a moment!",
@@ -39,7 +49,7 @@ object SkyBlockKickDuration {
     fun onChat(event: LorenzChatEvent) {
         if (!isEnabled()) return
 
-        if (kickPattern.matches(event.message) {
+        if (kickPattern.matches(event.message)) {
             if (LorenzUtils.onHypixel && !LorenzUtils.inSkyBlock) {
                 kickMessage = false
                 showTime = true
