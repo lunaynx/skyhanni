@@ -53,7 +53,11 @@ class NEUInternalName private constructor(private val internalName: String) {
 
     fun asString() = internalName
 
-    override fun equals(other: Any?) = other is NEUInternalName && internalName == other.internalName
+    override fun equals(other: Any?) = when (other) {
+        is NEUInternalName -> internalName == other.internalName
+        is String -> internalName == other
+        else -> false
+    }
 
     override fun toString(): String = "internalName:$internalName"
 
