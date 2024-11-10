@@ -47,7 +47,7 @@ object DeepCavernsGuide {
             "",
             "§7Manually enable the ",
             "§7guide to the bottom",
-            "§7of the Deep Caverns."
+            "§7of the Deep Caverns.",
         )
     }
 
@@ -74,7 +74,7 @@ object DeepCavernsGuide {
             depth = false,
             onEndReach = {
                 show = false
-            }
+            },
         )
         updateConfig()
     }
@@ -129,12 +129,11 @@ object DeepCavernsGuide {
                     SkyHanniMod.repo.updateRepo()
                 },
                 "§eClick to update the repo!",
-                prefixColor = "§c"
+                prefixColor = "§c",
             )
         }
         ChatUtils.chat(
-            "Automatically enabling Deep Caverns Guide, " +
-                "helping you find the way to the bottom of the Deep Caverns and the path to Rhys."
+            "Automatically enabling Deep Caverns Guide, helping you find the way to the bottom of the Deep Caverns and the path to Rhys."
         )
     }
 
