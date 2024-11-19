@@ -77,7 +77,7 @@ object ItemDisplayOverlayFeatures {
     )
     private val gardenVacuumPattern by patternGroup.pattern(
         "vacuum",
-        "§7Vacuum Bag: §6(?<amount>\\d*) Pests?",
+        "§7Vacuum Bag: §2(?<amount>\\d*) Pests?",
     )
     private val harvestPattern by patternGroup.pattern(
         "harvest",
