@@ -75,6 +75,9 @@ object ItemDisplayOverlayFeatures {
         "masterskull.id",
         "MASTER_SKULL_TIER_(?<tier>\\d)",
     )
+    /**
+     * REGEX-TEST: §7Vacuum Bag: §2444 Pests
+     */
     private val gardenVacuumPattern by patternGroup.pattern(
         "vacuum",
         "§7Vacuum Bag: §2(?<amount>\\d*) Pests?",
