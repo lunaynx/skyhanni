@@ -68,6 +68,7 @@ object NewYearCakeReminder {
             config::newYearCakeReminder,
             actionName = "open the baker menu",
             action = { HypixelCommands.openBaker() },
+            replaceSameMessage = true,
         )
     }
 
