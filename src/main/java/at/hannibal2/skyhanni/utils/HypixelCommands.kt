@@ -142,7 +142,7 @@ object HypixelCommands {
         send("pq $quality")
     }
 
-    // Changes the speed of Rancher's Boots in The Garden
+    // Changes the speed of Rancher's Boots
     fun setMaxSpeed(speed: Int? = null) = when {
         speed == null -> send("setmaxspeed")
         else -> send("setmaxspeed $speed")
