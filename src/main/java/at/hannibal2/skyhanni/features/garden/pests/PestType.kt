@@ -94,8 +94,7 @@ enum class PestType(
         CropType.MUSHROOM,
     ),
     MOUSE(
-        // TODO FIX
-        "Mouse",
+        "Field Mouse",
         BossType.GARDEN_PEST_MOUSE,
         spray = null,
         vinyl = null,
