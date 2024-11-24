@@ -63,7 +63,7 @@ internal enum class FFInfos(
         from = { FarmingItems.currentArmor?.getFFData() ?: FFStats.armorTotalFF },
         what = FFTypes.ENCHANT,
         x4 = { FarmingItems.currentArmor == null },
-        max = 5,
+        max = 12,
     ),
     GEMSTONE_ARMOR(
         TOTAL_ARMOR, { FarmingItems.currentArmor?.getFFData() ?: FFStats.armorTotalFF }, FFTypes.GEMSTONE,
