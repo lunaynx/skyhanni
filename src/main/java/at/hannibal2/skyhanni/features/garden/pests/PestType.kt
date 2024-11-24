@@ -11,7 +11,7 @@ enum class PestType(
     val spray: SprayType?,
     val vinyl: VinylType?,
     val internalName: NEUInternalName,
-    val crop: CropType,
+    val crop: CropType?,
 ) {
     BEETLE(
         "Beetle",
@@ -99,7 +99,7 @@ enum class PestType(
         spray = null,
         vinyl = null,
         "PEST_MOUSE_MONSTER".toInternalName(),
-        CropType.MUSHROOM,
+        crop = null,
     ),
     ;
 
