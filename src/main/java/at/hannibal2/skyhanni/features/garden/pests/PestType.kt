@@ -98,7 +98,7 @@ enum class PestType(
         BossType.GARDEN_PEST_MOUSE,
         spray = null,
         vinyl = null,
-        "PEST_MOUSE_MONSTER".toInternalName(),
+        "PEST_FIELD_MOUSE_MONSTER".toInternalName(),
         crop = null,
     ),
     ;
