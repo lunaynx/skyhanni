@@ -20,7 +20,6 @@ import at.hannibal2.skyhanni.utils.DelayedRun
 import at.hannibal2.skyhanni.utils.ItemUtils.getLore
 import at.hannibal2.skyhanni.utils.LorenzUtils
 import at.hannibal2.skyhanni.utils.RegexUtils.matchMatcher
-import at.hannibal2.skyhanni.utils.RegexUtils.matches
 import at.hannibal2.skyhanni.utils.TabListData
 import net.minecraft.item.ItemStack
 
@@ -52,30 +51,19 @@ class QuestLoader(private val dailyQuestHelper: DailyQuestHelper) {
     }
 
     private fun readQuest(line: String) {
-        if (!dailyQuestHelper.reputationHelper.tabListQuestPattern.matches(line)) return
+        dailyQuestHelper.reputationHelper.tabListQuestPattern.matchMatcher(line) {
+            if (line.contains("The Great Spook")) {
+                dailyQuestHelper.greatSpook = true
+                dailyQuestHelper.update()
+                return
+            }
 
-        if (line.contains("The Great Spook")) {
-            dailyQuestHelper.greatSpook = true
-            dailyQuestHelper.update()
-            return
+            val name = group("name")
+            val amount = group("amount")?.toInt() ?: 1
+            val green = group("status") == "✔"
+
+            checkQuest(name, green, amount)
         }
-        var text = line.substring(3)
-        val green = text.startsWith("§a")
-        text = text.substring(2)
-
-        val amount: Int
-        val name: String
-        // TODO use regex
-        if (text.contains(" §r§8x")) {
-            val split = text.split(" §r§8x")
-            name = split[0]
-            amount = split[1].toInt()
-        } else {
-            name = text
-            amount = 1
-        }
-
-        checkQuest(name, green, amount)
     }
 
     private fun checkQuest(name: String, green: Boolean, needAmount: Int) {
