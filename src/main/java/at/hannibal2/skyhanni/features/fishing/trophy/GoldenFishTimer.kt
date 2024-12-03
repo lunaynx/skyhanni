@@ -72,7 +72,8 @@ object GoldenFishTimer {
     private val timeOut = 10.seconds
     private val despawnTime = 1.minutes
     private val maxRodTime = 3.minutes
-    private val minimumSpawnTime = 15.minutes
+    private val minimumSpawnTime = 8.minutes
+    private val maximumSpawnTime = 12.minutes
     private const val MAX_INTERACTIONS = 3
 
     private var lastFishEntity = SimpleTimeMark.farPast()
@@ -199,7 +200,8 @@ object GoldenFishTimer {
                 )
                 else {
                     add("§7Can spawn since: §b${timePossibleSpawn.passedSince().formatTime()}")
-                    val chance = timePossibleSpawn.passedSince().inWholeSeconds.toDouble() / 5.minutes.inWholeSeconds
+                    val diff = maximumSpawnTime - minimumSpawnTime
+                    val chance = timePossibleSpawn.passedSince().inWholeSeconds.toDouble() / diff.inWholeSeconds
                     add("§7Chance: §b${LorenzUtils.formatPercentage(chance.coerceAtMost(1.0))}")
                 }
             } else {
