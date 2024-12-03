@@ -187,7 +187,7 @@ object GoldenFishTimer {
             if (!isGoldenFishActive()) {
                 if (lastGoldenFishTime.isFarPast()) add("§7Last Golden Fish: §cNone this session")
                 else add("§7Last Golden Fish: §b${lastGoldenFishTime.passedSince().formatTime()}")
-                if (lastRodThrowTime.isFarPast()) add("§7Last Row Throw: §cNone yet")
+                if (lastRodThrowTime.isFarPast()) add("§7Last Rod Throw: §cNone yet")
                 else add(
                     "§7Last Rod Throw: §b${lastRodThrowTime.passedSince().formatTime()} " +
                         "§3(${(lastRodThrowTime + maxRodTime + 1.seconds).timeUntil().formatTime()})",
