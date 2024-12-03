@@ -20,6 +20,7 @@ import at.hannibal2.skyhanni.utils.DelayedRun
 import at.hannibal2.skyhanni.utils.ItemUtils.getLore
 import at.hannibal2.skyhanni.utils.LorenzUtils
 import at.hannibal2.skyhanni.utils.RegexUtils.matchMatcher
+import at.hannibal2.skyhanni.utils.RegexUtils.matches
 import at.hannibal2.skyhanni.utils.TabListData
 import net.minecraft.item.ItemStack
 
@@ -144,13 +145,13 @@ class QuestLoader(private val dailyQuestHelper: DailyQuestHelper) {
             if (!categoryName.equals(name, ignoreCase = true)) continue
             val stack = event.inventoryItems[22] ?: continue
 
-            val completed = stack.getLore().any { it.contains("Completed!") }
+            val completed = stack.getLore().any { dailyQuestHelper.completedPattern.matches(it) }
             if (completed && quest.state != QuestState.COLLECTED) {
                 quest.state = QuestState.COLLECTED
                 dailyQuestHelper.update()
             }
 
-            val accepted = !stack.getLore().any { it.contains("Click to start!") }
+            val accepted = !stack.getLore().any { dailyQuestHelper.clickToStartPattern.matches(it) }
             if (accepted && quest.state == QuestState.NOT_ACCEPTED) {
                 quest.state = QuestState.ACCEPTED
                 dailyQuestHelper.update()
