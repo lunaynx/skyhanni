@@ -51,7 +51,7 @@ class CrimsonIsleReputationHelper(skyHanniMod: SkyHanniMod) {
      * REGEX-TEST:  §r§c✖ Slugfish §r§8x1
      */
     val tabListQuestPattern by RepoPattern.pattern(
-        "crimson.reputation.tablist.new",
+        "crimson.reputationhelper.tablist.quest",
         " (?:§.*)?(?<status>[✖✔]) (?<name>.+?)(?: (?:§.)*?x(?<amount>\\d+))?",
     )
 
