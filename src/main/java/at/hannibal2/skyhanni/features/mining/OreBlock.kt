@@ -63,7 +63,7 @@ enum class OreBlock(
 
     // END
     END_STONE(Blocks.end_stone, { inEnd }),
-    OBSIDIAN(Blocks.obsidian, { inCrystalHollows || inEnd }),
+    OBSIDIAN(Blocks.obsidian, { inCrystalHollows || inMineshaft || inEnd }),
 
     // HARD STONE
     HARD_STONE_HOLLOWS(::isHardStoneHollows, { inCrystalHollows }),
