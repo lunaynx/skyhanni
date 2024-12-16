@@ -69,7 +69,7 @@ class DailyQuestHelper(val reputationHelper: CrimsonIsleReputationHelper) {
      */
     val minibossAmountPattern by patternGroup.pattern(
         "minibossamount",
-        "(?:§7Kill the §c.+ §7)?miniboss §a(?<amount>\\d)(?: §7times?!)?",
+        "(?:§7Kill the §c.+ §7|.*)miniboss §a(?<amount>\\d)(?: §7times?!)?",
     )
 
     /**
