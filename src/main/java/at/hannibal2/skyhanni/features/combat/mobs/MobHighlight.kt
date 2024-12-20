@@ -78,20 +78,19 @@ object MobHighlight {
                 ) { config.zealotBruiserHighlighter }
             }
 
-            entity.getBlockInHand()?.block?.let { heldItem ->
-                if (config.chestZealotHighlighter && heldItem == Blocks.ender_chest) {
-                    RenderLivingEntityHelper.setEntityColorWithNoHurtTime(
-                        entity,
-                        LorenzColor.GREEN.toColor().addAlpha(127),
-                    ) { config.chestZealotHighlighter }
-                }
+            val heldItem = entity.getBlockInHand()?.block
+            if (config.chestZealotHighlighter && heldItem == Blocks.ender_chest) {
+                RenderLivingEntityHelper.setEntityColorWithNoHurtTime(
+                    entity,
+                    LorenzColor.GREEN.toColor().addAlpha(127),
+                ) { config.chestZealotHighlighter }
+            }
 
-                if (config.specialZealotHighlighter && heldItem == Blocks.end_portal_frame) {
-                    RenderLivingEntityHelper.setEntityColorWithNoHurtTime(
-                        entity,
-                        LorenzColor.DARK_RED.toColor().addAlpha(50),
-                    ) { config.specialZealotHighlighter }
-                }
+            if (config.specialZealotHighlighter && heldItem == Blocks.end_portal_frame) {
+                RenderLivingEntityHelper.setEntityColorWithNoHurtTime(
+                    entity,
+                    LorenzColor.DARK_RED.toColor().addAlpha(50),
+                ) { config.specialZealotHighlighter }
             }
         }
 
