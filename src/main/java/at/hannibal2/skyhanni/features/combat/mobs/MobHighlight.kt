@@ -15,7 +15,6 @@ import at.hannibal2.skyhanni.utils.LocationUtils.distanceToPlayer
 import at.hannibal2.skyhanni.utils.LorenzColor
 import at.hannibal2.skyhanni.utils.LorenzUtils
 import at.hannibal2.skyhanni.utils.LorenzUtils.baseMaxHealth
-import at.hannibal2.skyhanni.utils.LorenzUtils.ignoreDerpy
 import at.hannibal2.skyhanni.utils.RenderUtils.drawLineToEye
 import at.hannibal2.skyhanni.utils.getLorenzVec
 import net.minecraft.client.entity.EntityOtherPlayerMP
@@ -70,31 +69,29 @@ object MobHighlight {
             val isZealot = maxHealth == 13_000 || maxHealth == 13_000 * 4 // runic
             val isBruiser = maxHealth == 65_000 || maxHealth == 65_000 * 4 // runic
 
+            if (!(isZealot || isBruiser)) return
+
             if (config.zealotBruiserHighlighter) {
-                if (isZealot || isBruiser) {
-                    RenderLivingEntityHelper.setEntityColorWithNoHurtTime(
-                        entity,
-                        LorenzColor.DARK_AQUA.toColor().addAlpha(127),
-                    ) { config.zealotBruiserHighlighter }
-                }
+                RenderLivingEntityHelper.setEntityColorWithNoHurtTime(
+                    entity,
+                    LorenzColor.DARK_AQUA.toColor().addAlpha(127),
+                ) { config.zealotBruiserHighlighter }
             }
 
-            if (config.chestZealotHighlighter) {
-                val isHoldingChest = entity.getBlockInHand()?.block == Blocks.ender_chest
-                if ((isZealot || isBruiser) && isHoldingChest) {
+            entity.getBlockInHand()?.block?.let { heldItem ->
+                if (config.chestZealotHighlighter && heldItem == Blocks.ender_chest) {
                     RenderLivingEntityHelper.setEntityColorWithNoHurtTime(
                         entity,
                         LorenzColor.GREEN.toColor().addAlpha(127),
                     ) { config.chestZealotHighlighter }
                 }
-            }
 
-            // Special Zealots are not impacted by derpy
-            if (config.specialZealotHighlighter && maxHealth.ignoreDerpy() == 2_000) {
-                RenderLivingEntityHelper.setEntityColorWithNoHurtTime(
-                    entity,
-                    LorenzColor.DARK_RED.toColor().addAlpha(50),
-                ) { config.specialZealotHighlighter }
+                if (config.specialZealotHighlighter && heldItem == Blocks.end_portal_frame) {
+                    RenderLivingEntityHelper.setEntityColorWithNoHurtTime(
+                        entity,
+                        LorenzColor.DARK_RED.toColor().addAlpha(50),
+                    ) { config.specialZealotHighlighter }
+                }
             }
         }
 
