@@ -366,12 +366,13 @@ object ItemDisplayOverlayFeatures {
 
     private fun fixRemovedConfigElement(data: JsonElement): JsonElement {
         if (!data.isJsonArray) return data
+        val oldList = data.asJsonArray
         val newList = JsonArray()
         val bottleOfJyrre by lazy { JsonPrimitive("BOTTLE_OF_JYRRE") }
-        for (element in data.asJsonArray) {
+        for (element in oldList) {
             if (element.asString == "REMOVED") continue
             if (element.asString == "DARK_CACAO_TRUFFLE") {
-                if (bottleOfJyrre !in newList) {
+                if (bottleOfJyrre !in oldList) {
                     newList.add(bottleOfJyrre)
                 }
                 continue
