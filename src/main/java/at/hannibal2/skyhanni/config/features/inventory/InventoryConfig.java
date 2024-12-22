@@ -174,7 +174,7 @@ public class InventoryConfig {
         LARVA_HOOK("§bLarva Hook", 12),
         DUNGEON_POTION_LEVEL("§bDungeon Potion Level", 13),
         VACUUM_GARDEN("§bVacuum (Garden)", 14),
-        BOTTLE_OF_JYRRE("§bTime Pocket Items (Jyrre, Truffle, Discrite)", 15),
+        TIME_POCKET_ITEMS("§bTime Pocket Items (Jyrre, Truffle, Discrite)", 15),
         EDITION_NUMBER("§bEdition Number", 16),
         ENCHANTING_EXP("§bEnchanting EXP (Superpairs)"),
         BINGO_GOAL_RANK("§bBingo Goal Rank"),

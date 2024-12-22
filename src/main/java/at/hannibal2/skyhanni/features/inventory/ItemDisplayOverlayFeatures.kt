@@ -8,7 +8,6 @@ import at.hannibal2.skyhanni.config.ConfigUpdaterMigrator
 import at.hannibal2.skyhanni.config.features.inventory.InventoryConfig.ItemNumberEntry
 import at.hannibal2.skyhanni.config.features.inventory.InventoryConfig.ItemNumberEntry.BESTIARY_LEVEL
 import at.hannibal2.skyhanni.config.features.inventory.InventoryConfig.ItemNumberEntry.BINGO_GOAL_RANK
-import at.hannibal2.skyhanni.config.features.inventory.InventoryConfig.ItemNumberEntry.BOTTLE_OF_JYRRE
 import at.hannibal2.skyhanni.config.features.inventory.InventoryConfig.ItemNumberEntry.COLLECTION_LEVEL
 import at.hannibal2.skyhanni.config.features.inventory.InventoryConfig.ItemNumberEntry.DUNGEON_HEAD_FLOOR_NUMBER
 import at.hannibal2.skyhanni.config.features.inventory.InventoryConfig.ItemNumberEntry.DUNGEON_POTION_LEVEL
@@ -24,6 +23,7 @@ import at.hannibal2.skyhanni.config.features.inventory.InventoryConfig.ItemNumbe
 import at.hannibal2.skyhanni.config.features.inventory.InventoryConfig.ItemNumberEntry.RANCHERS_BOOTS_SPEED
 import at.hannibal2.skyhanni.config.features.inventory.InventoryConfig.ItemNumberEntry.SKILL_LEVEL
 import at.hannibal2.skyhanni.config.features.inventory.InventoryConfig.ItemNumberEntry.SKYBLOCK_LEVEL
+import at.hannibal2.skyhanni.config.features.inventory.InventoryConfig.ItemNumberEntry.TIME_POCKET_ITEMS
 import at.hannibal2.skyhanni.config.features.inventory.InventoryConfig.ItemNumberEntry.VACUUM_GARDEN
 import at.hannibal2.skyhanni.data.PetAPI
 import at.hannibal2.skyhanni.events.RenderItemTipEvent
@@ -281,7 +281,7 @@ object ItemDisplayOverlayFeatures {
             }
         }
 
-        if (BOTTLE_OF_JYRRE.isSelected()) {
+        if (TIME_POCKET_ITEMS.isSelected()) {
             item.getSecondsHeld()?.let { seconds ->
                 return "§a${(seconds / 3600)}"
             }
@@ -362,18 +362,29 @@ object ItemDisplayOverlayFeatures {
         event.transform(29, "inventory.itemNumberAsStackSize") { element ->
             fixRemovedConfigElement(element)
         }
+        event.transform(70, "inventory.itemNumberAsStackSize") { element ->
+            migrateTimePocketItems(element)
+        }
     }
 
     private fun fixRemovedConfigElement(data: JsonElement): JsonElement {
         if (!data.isJsonArray) return data
-        val oldList = data.asJsonArray
         val newList = JsonArray()
-        val bottleOfJyrre by lazy { JsonPrimitive("BOTTLE_OF_JYRRE") }
-        for (element in oldList) {
+        for (element in data.asJsonArray) {
             if (element.asString == "REMOVED") continue
-            if (element.asString == "DARK_CACAO_TRUFFLE") {
-                if (bottleOfJyrre !in oldList) {
-                    newList.add(bottleOfJyrre)
+            newList.add(element)
+        }
+        return newList
+    }
+
+    private fun migrateTimePocketItems(data: JsonElement): JsonElement {
+        if (!data.isJsonArray) return data
+        val newList = JsonArray()
+        val timePocketItems by lazy { JsonPrimitive("TIME_POCKET_ITEMS") }
+        for (element in data.asJsonArray) {
+            if (element.asString in setOf("BOTTLE_OF_JYRRE", "DARK_CACAO_TRUFFLE")) {
+                if (timePocketItems !in newList) {
+                    newList.add(timePocketItems)
                 }
                 continue
             }
