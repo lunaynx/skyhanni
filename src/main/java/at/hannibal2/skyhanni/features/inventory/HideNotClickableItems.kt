@@ -261,16 +261,8 @@ object HideNotClickableItems {
         if (chestName != "Rift Transfer Chest") return false
 
         showGreenLine = true
-        val riftTransferable = stack.isRiftTransferable() ?: return true
-        if (riftTransferable) {
-            return false
-        }
-        if (RiftAPI.inRift()) {
-            val riftExportable = stack.isRiftExportable() ?: return true
-            if (riftExportable) {
-                return false
-            }
-        }
+
+        if (stack.isRiftTransferable() || stack.isRiftExportable()) return false
 
         hideReason = "Not Rift-Transferable!"
         return true
