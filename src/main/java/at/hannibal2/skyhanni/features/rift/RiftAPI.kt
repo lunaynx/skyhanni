@@ -31,6 +31,7 @@ object RiftAPI {
         get() = this?.getInternalName() == blowgun
 
     fun ItemStack.motesNpcPrice(): Double? {
+        if (getAttributeBoolean("rift_transferred")) return null
         val baseMotes = motesPrice[getInternalName()] ?: return null
         val burgerStacks = config.motes.burgerStacks
         val pricePer = baseMotes + (burgerStacks * 5) * baseMotes / 100
