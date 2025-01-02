@@ -28,6 +28,7 @@ import at.hannibal2.skyhanni.features.nether.reputationhelper.dailyquest.quest.R
 import at.hannibal2.skyhanni.features.nether.reputationhelper.dailyquest.quest.TrophyFishQuest
 import at.hannibal2.skyhanni.features.nether.reputationhelper.dailyquest.quest.UnknownQuest
 import at.hannibal2.skyhanni.features.nether.reputationhelper.miniboss.CrimsonMiniBoss
+import at.hannibal2.skyhanni.skyhannimodule.SkyHanniModule
 import at.hannibal2.skyhanni.utils.ChatUtils
 import at.hannibal2.skyhanni.utils.CollectionUtils.addAsSingletonList
 import at.hannibal2.skyhanni.utils.ConditionalUtils
@@ -50,12 +51,12 @@ import net.minecraft.client.gui.inventory.GuiChest
 import net.minecraft.inventory.ContainerChest
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent
 
-class DailyQuestHelper(val reputationHelper: CrimsonIsleReputationHelper) {
+@SkyHanniModule
+object DailyQuestHelper {
 
     private val townBoardMage = LorenzVec(-138, 92, -755)
     private val townBoardBarbarian = LorenzVec(-572, 100, -687)
 
-    private val questLoader = QuestLoader(this)
     val quests = mutableListOf<Quest>()
     var greatSpook = false
 
@@ -95,14 +96,14 @@ class DailyQuestHelper(val reputationHelper: CrimsonIsleReputationHelper) {
     fun onInventoryOpen(event: InventoryFullyOpenedEvent) {
         if (!isEnabled()) return
 
-        questLoader.checkInventory(event)
+        QuestLoader.checkInventory(event)
     }
 
     @HandleEvent
     fun onConfigLoad(event: ConfigLoadEvent) {
         ConditionalUtils.onToggle(config.enabled) {
             if (IslandType.CRIMSON_ISLE.isInIsland()) {
-                questLoader.loadFromTabList()
+                QuestLoader.loadFromTabList()
             }
         }
     }
@@ -112,7 +113,7 @@ class DailyQuestHelper(val reputationHelper: CrimsonIsleReputationHelper) {
         if (!event.isWidget(TabWidget.FACTION_QUESTS)) return
         if (!isEnabled()) return
 
-        questLoader.loadFromTabList()
+        QuestLoader.loadFromTabList()
     }
 
     @SubscribeEvent
@@ -125,7 +126,7 @@ class DailyQuestHelper(val reputationHelper: CrimsonIsleReputationHelper) {
     }
 
     fun update() {
-        reputationHelper.update()
+        CrimsonIsleReputationHelper.update()
     }
 
     @SubscribeEvent
@@ -205,7 +206,7 @@ class DailyQuestHelper(val reputationHelper: CrimsonIsleReputationHelper) {
     @SubscribeEvent
     fun onRenderWorld(event: LorenzRenderWorldEvent) {
         if (!isEnabled()) return
-        if (!reputationHelper.showLocations()) return
+        if (!CrimsonIsleReputationHelper.showLocations()) return
 
         for (quest in quests) {
             if (quest is MiniBossQuest) continue
@@ -221,7 +222,7 @@ class DailyQuestHelper(val reputationHelper: CrimsonIsleReputationHelper) {
 
     private fun renderTownBoard(event: LorenzRenderWorldEvent) {
         if (!quests.any { it.needsTownBoardLocation() }) return
-        val location = when (reputationHelper.factionType) {
+        val location = when (CrimsonIsleReputationHelper.factionType) {
             FactionType.BARBARIAN -> townBoardBarbarian
             FactionType.MAGE -> townBoardMage
 
@@ -324,7 +325,7 @@ class DailyQuestHelper(val reputationHelper: CrimsonIsleReputationHelper) {
 
     fun load(storage: ProfileSpecificStorage.CrimsonIsleStorage) {
         reset()
-        questLoader.loadConfig(storage)
+        QuestLoader.loadConfig(storage)
     }
 
     fun saveConfig(storage: ProfileSpecificStorage.CrimsonIsleStorage) {

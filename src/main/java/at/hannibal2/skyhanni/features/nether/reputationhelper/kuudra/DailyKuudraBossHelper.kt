@@ -9,6 +9,8 @@ import at.hannibal2.skyhanni.events.LorenzRenderWorldEvent
 import at.hannibal2.skyhanni.events.kuudra.KuudraCompleteEvent
 import at.hannibal2.skyhanni.features.nether.kuudra.KuudraTier
 import at.hannibal2.skyhanni.features.nether.reputationhelper.CrimsonIsleReputationHelper
+import at.hannibal2.skyhanni.features.nether.reputationhelper.dailyquest.DailyQuestHelper
+import at.hannibal2.skyhanni.skyhannimodule.SkyHanniModule
 import at.hannibal2.skyhanni.utils.ChatUtils
 import at.hannibal2.skyhanni.utils.CollectionUtils.addAsSingletonList
 import at.hannibal2.skyhanni.utils.LorenzColor
@@ -19,7 +21,8 @@ import at.hannibal2.skyhanni.utils.RenderUtils.drawDynamicText
 import at.hannibal2.skyhanni.utils.RenderUtils.drawWaypointFilled
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent
 
-class DailyKuudraBossHelper(private val reputationHelper: CrimsonIsleReputationHelper) {
+@SkyHanniModule
+object DailyKuudraBossHelper {
 
     val kuudraTiers = mutableListOf<KuudraTier>()
 
@@ -32,7 +35,7 @@ class DailyKuudraBossHelper(private val reputationHelper: CrimsonIsleReputationH
     fun onRenderWorld(event: LorenzRenderWorldEvent) {
         if (!IslandType.CRIMSON_ISLE.isInIsland()) return
         if (!config.enabled.get()) return
-        if (!reputationHelper.showLocations()) return
+        if (!CrimsonIsleReputationHelper.showLocations()) return
         if (allKuudraDone) return
 
         kuudraLocation?.let {
@@ -46,10 +49,10 @@ class DailyKuudraBossHelper(private val reputationHelper: CrimsonIsleReputationH
         val tier = event.kuudraTier
         val kuudraTier = getByTier(tier) ?: return
         ChatUtils.debug("Detected kuudra tier done: ${kuudraTier.getDisplayName()}")
-        reputationHelper.questHelper.finishKuudra(kuudraTier)
+        DailyQuestHelper.finishKuudra(kuudraTier)
         kuudraTier.doneToday = true
         updateAllKuudraDone()
-        reputationHelper.update()
+        CrimsonIsleReputationHelper.update()
     }
 
     fun render(display: MutableList<List<Any>>) {
@@ -90,7 +93,7 @@ class DailyKuudraBossHelper(private val reputationHelper: CrimsonIsleReputationH
         var tier = 1
         for ((displayName, kuudraTier) in data) {
             val displayItem = kuudraTier.item
-            val location = reputationHelper.readLocationData(kuudraTier.location)
+            val location = CrimsonIsleReputationHelper.readLocationData(kuudraTier.location)
             if (location != null) {
                 kuudraLocation = location
             }

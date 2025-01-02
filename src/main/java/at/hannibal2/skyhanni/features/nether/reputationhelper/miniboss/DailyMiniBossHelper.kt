@@ -8,8 +8,10 @@ import at.hannibal2.skyhanni.events.LorenzChatEvent
 import at.hannibal2.skyhanni.events.LorenzRenderWorldEvent
 import at.hannibal2.skyhanni.features.combat.damageindicator.DamageIndicatorManager
 import at.hannibal2.skyhanni.features.nether.reputationhelper.CrimsonIsleReputationHelper
+import at.hannibal2.skyhanni.features.nether.reputationhelper.dailyquest.DailyQuestHelper
 import at.hannibal2.skyhanni.features.nether.reputationhelper.dailyquest.quest.MiniBossQuest
 import at.hannibal2.skyhanni.features.nether.reputationhelper.dailyquest.quest.QuestState
+import at.hannibal2.skyhanni.skyhannimodule.SkyHanniModule
 import at.hannibal2.skyhanni.utils.CollectionUtils.addAsSingletonList
 import at.hannibal2.skyhanni.utils.LocationUtils
 import at.hannibal2.skyhanni.utils.LorenzColor
@@ -20,7 +22,8 @@ import at.hannibal2.skyhanni.utils.RenderUtils.drawDynamicText
 import at.hannibal2.skyhanni.utils.RenderUtils.drawWaypointFilled
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent
 
-class DailyMiniBossHelper(private val reputationHelper: CrimsonIsleReputationHelper) {
+@SkyHanniModule
+object DailyMiniBossHelper {
 
     val miniBosses = mutableListOf<CrimsonMiniBoss>()
     private val config get() = SkyHanniMod.feature.crimsonIsle.reputationHelper
@@ -40,7 +43,7 @@ class DailyMiniBossHelper(private val reputationHelper: CrimsonIsleReputationHel
     @SubscribeEvent
     fun onRenderWorld(event: LorenzRenderWorldEvent) {
         if (!isEnabled()) return
-        if (!reputationHelper.showLocations()) return
+        if (!CrimsonIsleReputationHelper.showLocations()) return
 
         val playerLocation = LocationUtils.playerLocation()
         for (miniBoss in miniBosses) {
@@ -54,14 +57,14 @@ class DailyMiniBossHelper(private val reputationHelper: CrimsonIsleReputationHel
     }
 
     private fun needMiniBossQuest(miniBoss: CrimsonMiniBoss) =
-        reputationHelper.questHelper.getQuest<MiniBossQuest>()?.let {
+        DailyQuestHelper.getQuest<MiniBossQuest>()?.let {
             it.miniBoss == miniBoss && it.state == QuestState.ACCEPTED
         } ?: false
 
     private fun finished(miniBoss: CrimsonMiniBoss) {
-        reputationHelper.questHelper.finishMiniBoss(miniBoss)
+        DailyQuestHelper.finishMiniBoss(miniBoss)
         miniBoss.doneToday = true
-        reputationHelper.update()
+        CrimsonIsleReputationHelper.update()
     }
 
     fun render(display: MutableList<List<Any>>) {
@@ -102,7 +105,7 @@ class DailyMiniBossHelper(private val reputationHelper: CrimsonIsleReputationHel
         for ((displayName, quest) in data) {
             val displayItem = quest.item
             val pattern = "§f *§r§6§l${displayName.uppercase()} DOWN!".toPattern()
-            val location = reputationHelper.readLocationData(quest.location)
+            val location = CrimsonIsleReputationHelper.readLocationData(quest.location)
             miniBosses.add(CrimsonMiniBoss(displayName, displayItem, location, pattern))
         }
     }
