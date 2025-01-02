@@ -17,6 +17,7 @@ import at.hannibal2.skyhanni.events.render.gui.ReplaceItemEvent
 import at.hannibal2.skyhanni.skyhannimodule.SkyHanniModule
 import at.hannibal2.skyhanni.utils.ChatUtils
 import at.hannibal2.skyhanni.utils.ConditionalUtils
+import at.hannibal2.skyhanni.utils.DelayedRun
 import at.hannibal2.skyhanni.utils.ItemUtils
 import at.hannibal2.skyhanni.utils.LorenzUtils
 import at.hannibal2.skyhanni.utils.LorenzUtils.isInIsland
@@ -100,7 +101,9 @@ object DeepCavernsGuide {
         if (!isEnabled()) return
         if (LorenzUtils.skyBlockArea != "Gunpowder Mines") return
         if (notUnlockedPattern.matches(event.message)) {
-            start()
+            DelayedRun.runNextTick {
+                start()
+            }
         }
     }
 
@@ -133,8 +136,9 @@ object DeepCavernsGuide {
                 prefixColor = "§c",
             )
         }
+        @Suppress("MaxLineLength")
         ChatUtils.chat(
-            "Automatically enabling Deep Caverns Guide, helping you find the way to the bottom of the Deep Caverns and the path to Rhys."
+            "Automatically enabling the Deep Caverns Guide, helping you find the way to the bottom of the Deep Caverns and the path to Rhys."
         )
     }
 
