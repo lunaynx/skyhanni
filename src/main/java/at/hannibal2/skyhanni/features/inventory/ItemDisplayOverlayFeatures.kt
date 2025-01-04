@@ -380,9 +380,10 @@ object ItemDisplayOverlayFeatures {
     private fun migrateTimePocketItems(data: JsonElement): JsonElement {
         if (!data.isJsonArray) return data
         val newList = JsonArray()
-        val timePocketItems by lazy { JsonPrimitive("TIME_POCKET_ITEMS") }
+        val oldValues = setOf("BOTTLE_OF_JYRRE", "DARK_CACAO_TRUFFLE")
+        val timePocketItems = JsonPrimitive("TIME_POCKET_ITEMS")
         for (element in data.asJsonArray) {
-            if (element.asString in setOf("BOTTLE_OF_JYRRE", "DARK_CACAO_TRUFFLE")) {
+            if (element.asString in oldValues) {
                 if (timePocketItems !in newList) {
                     newList.add(timePocketItems)
                 }
