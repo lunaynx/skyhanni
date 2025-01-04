@@ -20,7 +20,7 @@ object HeldTimeInLore {
         if (!config.timeHeldInLore) return
 
         val seconds = event.itemStack.getSecondsHeld() ?: return
-        val formatted = seconds.seconds.format()
+        val formatted = seconds.seconds.format(maxUnits = 2)
 
         event.toolTip.addOrInsert(10, "§7Time Held: §b$formatted")
     }
