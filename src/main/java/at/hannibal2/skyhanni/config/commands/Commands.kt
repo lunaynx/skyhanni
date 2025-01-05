@@ -453,11 +453,6 @@ object Commands {
             category = CommandCategory.USERS_BUG_FIX
             callback { SkyHanniMod.repo.displayRepoStatus(false) }
         }
-        event.register("shkingfix") {
-            description = "Resets the local King Talisman Helper offset."
-            category = CommandCategory.USERS_BUG_FIX
-            callback { KingTalismanHelper.kingFix() }
-        }
         event.register("shupdate") {
             description = "Updates the mod to the specified update stream."
             category = CommandCategory.USERS_BUG_FIX
