@@ -1,6 +1,9 @@
 package at.hannibal2.skyhanni.features.mining
 
 import at.hannibal2.skyhanni.SkyHanniMod
+import at.hannibal2.skyhanni.api.event.HandleEvent
+import at.hannibal2.skyhanni.config.commands.CommandCategory
+import at.hannibal2.skyhanni.config.commands.CommandRegistrationEvent
 import at.hannibal2.skyhanni.data.IslandType
 import at.hannibal2.skyhanni.data.MiningAPI
 import at.hannibal2.skyhanni.data.ProfileStorageData
@@ -235,5 +238,14 @@ object KingTalismanHelper {
     fun resetKings() {
         storage?.kingsTalkedTo = mutableListOf<String>()
         update()
+    }
+
+    @HandleEvent
+    fun onCommandRegistration(event: CommandRegistrationEvent) {
+        event.register("shresetkinghelper") {
+            description = "Resets the King Talisman Helper"
+            category = CommandCategory.USERS_RESET
+            callback { resetKings() }
+        }
     }
 }
