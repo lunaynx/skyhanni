@@ -231,4 +231,9 @@ object KingTalismanHelper {
             update()
         }
     }
+
+    fun resetKings() {
+        storage?.kingsTalkedTo = mutableListOf<String>()
+        update()
+    }
 }

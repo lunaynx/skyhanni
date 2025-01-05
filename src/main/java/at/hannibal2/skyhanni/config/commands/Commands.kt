@@ -415,6 +415,12 @@ object Commands {
             category = CommandCategory.USERS_RESET
             callback { PunchcardHighlight.onResetCommand() }
         }
+        event.register("shresetkinghelper") {
+            description = "Resets the King Talisman Helper"
+            category = CommandCategory.USERS_RESET
+            callback { KingTalismanHelper.resetKings() }
+        }
+
     }
 
     private fun usersBugFix(event: CommandRegistrationEvent) {
