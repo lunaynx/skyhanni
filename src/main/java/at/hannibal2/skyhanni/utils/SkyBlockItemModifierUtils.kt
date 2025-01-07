@@ -168,20 +168,19 @@ object SkyBlockItemModifierUtils {
         }
     }
 
-    fun ItemStack.isRecombobulated() = getAttributeBoolean("rarity_upgrades")
+    fun ItemStack.isRecombobulated() = (getAttributeInt("rarity_upgrades") ?: 0) > 0
 
-    fun ItemStack.hasJalapenoBook() = getAttributeBoolean("jalapeno_count")
+    fun ItemStack.hasJalapenoBook() = (getAttributeInt("jalapeno_count") ?: 0) > 0
 
     fun ItemStack.hasEtherwarp() = getAttributeBoolean("ethermerge")
 
-    fun ItemStack.hasWoodSingularity() = getAttributeBoolean("wood_singularity_count")
+    fun ItemStack.hasWoodSingularity() = (getAttributeInt("wood_singularity_count") ?: 0) > 0
 
     fun ItemStack.hasDivanPowderCoating() = getAttributeBoolean("divan_powder_coating")
 
-    fun ItemStack.hasArtOfWar() = getAttributeBoolean("art_of_war_count")
+    fun ItemStack.hasArtOfWar() = (getAttributeInt("art_of_war_count") ?: 0) > 0
 
-    // TODO untested
-    fun ItemStack.hasBookOfStats() = getAttributeBoolean("stats_book")
+    fun ItemStack.hasBookOfStats() = getAttributeInt("stats_book") != null
 
     fun ItemStack.hasArtOfPeace() = getAttributeBoolean("artOfPeaceApplied")
 
