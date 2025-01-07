@@ -65,7 +65,9 @@ object RepoManager {
     private const val DEFAULT_BRANCH = "main"
 
     fun RepositoryConfig.RepositoryLocation.hasDefaultSettings() =
-        user == DEFAULT_USER && name == DEFAULT_NAME && branch == DEFAULT_BRANCH
+        user.lowercase() == DEFAULT_USER.lowercase() &&
+            name.lowercase() == DEFAULT_NAME.lowercase() &&
+            branch.lowercase() == DEFAULT_BRANCH.lowercase()
 
     fun loadRepoInformation() {
         atomicShouldManuallyReload.set(true)
@@ -239,7 +241,7 @@ object RepoManager {
                 val text = mutableListOf<IChatComponent>()
                 text.add(
                     (
-                        "§c[SkyHanni-${SkyHanniMod.version}] §7Repo Issue! Some features may not work. " +
+                        "§c[SkyHanni-${SkyHanniMod.VERSION}] §7Repo Issue! Some features may not work. " +
                             "Please report this error on the Discord!"
                         ).asComponent(),
                 )
