@@ -55,7 +55,7 @@ object RiftBloodEffigies {
     private val effigies = (0..5).associateWith { Effigy() }
 
     private val patternGroup = RepoPattern.group("rift.area.stillgore.effegies")
-    /*
+    /**
      * REGEX-TEST: §eRespawn §c14m59s §7(or click!)
      * REGEX-TEST: §eRespawn §c1s §7(or click!)
      */
@@ -63,7 +63,7 @@ object RiftBloodEffigies {
         "respawn",
         "§eRespawn §c(?<time>.*) §7\\(or click!\\)",
     )
-    /*
+    /**
      * REGEX-TEST: §eBreak it!
      */
     private val effigiesBreakPattern by patternGroup.pattern(
