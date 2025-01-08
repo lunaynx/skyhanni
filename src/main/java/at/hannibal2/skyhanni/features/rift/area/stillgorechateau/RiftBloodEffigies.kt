@@ -12,7 +12,6 @@ import at.hannibal2.skyhanni.events.SecondPassedEvent
 import at.hannibal2.skyhanni.features.rift.RiftAPI
 import at.hannibal2.skyhanni.skyhannimodule.SkyHanniModule
 import at.hannibal2.skyhanni.utils.ChatUtils
-import at.hannibal2.skyhanni.utils.CollectionUtils.editCopy
 import at.hannibal2.skyhanni.utils.EntityUtils
 import at.hannibal2.skyhanni.utils.LocationUtils
 import at.hannibal2.skyhanni.utils.LocationUtils.distanceToPlayer
@@ -43,25 +42,30 @@ object RiftBloodEffigies {
     private data class Effigy(
         var state: EffigyState = EffigyState.UNKNOWN,
         var respawnTime: SimpleTimeMark = SimpleTimeMark.farPast(),
-    )
+    ) {
+        fun reset() {
+            state = EffigyState.UNKNOWN
+            respawnTime = SimpleTimeMark.farPast()
+        }
+    }
 
     private val config get() = RiftAPI.config.area.stillgoreChateau.bloodEffigies
 
     private var locations: List<LorenzVec> = emptyList()
-    private var effigies = Array(6) { Effigy() }
+    private val effigies = (0..5).associateWith { Effigy() }
 
     private val patternGroup = RepoPattern.group("rift.area.stillgore.effegies")
     private val effigiesTimerPattern by patternGroup.pattern(
         "respawn",
-        "§eRespawn §c(?<time>.*) §7\\(or click!\\)"
+        "§eRespawn §c(?<time>.*) §7\\(or click!\\)",
     )
     private val effigiesBreakPattern by patternGroup.pattern(
         "break",
-        "§eBreak it!"
+        "§eBreak it!",
     )
     val heartsPattern by patternGroup.pattern(
         "heart",
-        "Effigies: (?<hearts>(?:(?:§[7c])?⧯)*)"
+        "Effigies: (?<hearts>(?:(?:§[7c])?⧯)*)",
     )
 
     private fun getIndex(entity: EntityArmorStand): Int? =
@@ -69,7 +73,7 @@ object RiftBloodEffigies {
 
     @SubscribeEvent
     fun onWorldChange(event: LorenzWorldChangeEvent) {
-        effigies = Array(6) { Effigy() }
+        effigies.values.forEach { it.reset() }
     }
 
     @HandleEvent
@@ -81,9 +85,9 @@ object RiftBloodEffigies {
             return
         }
         event.addData {
-            effigies.forEachIndexed { index, effigy ->
+            for ((i, effigy) in effigies) {
                 val time = effigy.respawnTime.timeUntil().format()
-                add("${index + 1}: ${effigy.state} - $time (${effigy.respawnTime})")
+                add("${i + 1}: ${effigy.state} - $time (${effigy.respawnTime})")
             }
         }
     }
@@ -109,7 +113,7 @@ object RiftBloodEffigies {
 
         val split = hearts.split("§").drop(1)
         for ((index, s) in split.withIndex()) {
-            val effigy = effigies[index]
+            val effigy = effigies[index] ?: continue
 
             val oldState = effigy.state
             effigy.state = when (s[0]) {
@@ -122,9 +126,7 @@ object RiftBloodEffigies {
                 ChatUtils.chat("Effigy #${index + 1} respawned!")
             } else if (oldState == EffigyState.NOT_BROKEN && effigy.state == EffigyState.BROKEN) {
                 ChatUtils.chat("Effigy #${index + 1} broken!")
-                effigies = effigies.editCopy {
-                    this[index].respawnTime = SimpleTimeMark.now() + 20.minutes
-                }
+                effigies[index]?.respawnTime = SimpleTimeMark.now() + 20.minutes
             }
         }
     }
@@ -137,18 +139,16 @@ object RiftBloodEffigies {
             effigiesTimerPattern.matchMatcher(entity.name) {
                 val index = getIndex(entity) ?: continue
                 val time = TimeUtils.getDuration(group("time"))
-                effigies = effigies.editCopy {
-                    this[index].state = EffigyState.BROKEN
-                    this[index].respawnTime = SimpleTimeMark.now() + time
+                effigies[index]?.let {
+                    it.state = EffigyState.BROKEN
+                    it.respawnTime = SimpleTimeMark.now() + time
                 }
                 continue
             }
 
             if (effigiesBreakPattern.matches(entity.name)) {
                 val index = getIndex(entity) ?: continue
-                effigies = effigies.editCopy {
-                    this[index].state = EffigyState.NOT_BROKEN
-                }
+                effigies[index]?.state = EffigyState.NOT_BROKEN
                 continue
             }
         }
@@ -160,7 +160,7 @@ object RiftBloodEffigies {
 
         for ((index, location) in locations.withIndex()) {
             val name = "Effigy #${index + 1}"
-            val effigy = effigies[index]
+            val effigy = effigies[index] ?: continue
 
             when (effigy.state) {
                 EffigyState.BROKEN -> {
@@ -177,11 +177,13 @@ object RiftBloodEffigies {
                         continue
                     }
                 }
+
                 EffigyState.NOT_BROKEN -> {
                     event.drawWaypointFilled(location, LorenzColor.RED.toColor(), seeThroughBlocks = true)
                     event.drawDynamicText(location, "§cBreak $name!", 1.5)
                     continue
                 }
+
                 EffigyState.UNKNOWN -> {
                     if (config.unknownTime) {
                         event.drawWaypointFilled(location, LorenzColor.GRAY.toColor(), seeThroughBlocks = true)
