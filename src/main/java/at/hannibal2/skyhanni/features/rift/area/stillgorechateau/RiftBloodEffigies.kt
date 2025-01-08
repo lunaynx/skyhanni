@@ -64,6 +64,9 @@ object RiftBloodEffigies {
         "Effigies: (?<hearts>(?:(?:§[7c])?⧯)*)"
     )
 
+    private fun getIndex(entity: EntityArmorStand) =
+        locations.minByOrNull { it.distanceSq(entity.getLorenzVec()) }?.let { locations.indexOf(it) }
+
     @SubscribeEvent
     fun onWorldChange(event: LorenzWorldChangeEvent) {
         effigies = Array(6) { Effigy() }
@@ -131,12 +134,8 @@ object RiftBloodEffigies {
         if (!isEnabled()) return
 
         for (entity in EntityUtils.getEntitiesNearby<EntityArmorStand>(LocationUtils.playerLocation(), 15.0)) {
-            val index: Lazy<Int?> = lazy {
-                locations.minByOrNull { it.distanceSq(entity.getLorenzVec()) }?.let { locations.indexOf(it) }
-            }
-
             effigiesTimerPattern.matchMatcher(entity.name) {
-                val index = index.value ?: continue
+                val index = getIndex(entity) ?: continue
                 val time = TimeUtils.getDuration(group("time"))
                 effigies = effigies.editCopy {
                     this[index].state = EffigyState.BROKEN
@@ -146,7 +145,7 @@ object RiftBloodEffigies {
             }
 
             if (effigiesBreakPattern.matches(entity.name)) {
-                val index = index.value ?: continue
+                val index = getIndex(entity) ?: continue
                 effigies = effigies.editCopy {
                     this[index].state = EffigyState.NOT_BROKEN
                 }
