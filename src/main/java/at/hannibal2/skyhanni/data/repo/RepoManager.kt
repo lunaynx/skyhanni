@@ -193,7 +193,7 @@ object RepoManager {
             unsuccessfulConstants.clear()
             lastConstant = null
 
-            RepositoryReloadEvent(repoLocation, gson).postAndCatchAndBlock(ignoreErrorCache = true) {
+            RepositoryReloadEvent(repoLocation, gson).post {
                 error = true
                 lastConstant?.let {
                     unsuccessfulConstants.add(it)

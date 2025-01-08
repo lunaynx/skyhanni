@@ -54,7 +54,7 @@ object CrimsonIsleReputationHelper {
         " (?:§.*)?(?<status>[✖✔]) (?<name>.+?)(?: (?:§.)*?x(?<amount>\\d+))?",
     )
 
-    @SubscribeEvent
+    @HandleEvent
     fun onRepoReload(event: RepositoryReloadEvent) {
         val data = event.getConstant<CrimsonIsleReputationJson>("CrimsonIsleReputation")
         DailyMiniBossHelper.onRepoReload(data.MINIBOSS)
