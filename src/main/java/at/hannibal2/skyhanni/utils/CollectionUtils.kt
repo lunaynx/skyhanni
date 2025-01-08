@@ -166,6 +166,9 @@ object CollectionUtils {
 
     fun <T> List<T>.editCopy(function: MutableList<T>.() -> Unit) = toMutableList().also { function(it) }.toList()
 
+    inline fun <reified T> Array<T>.editCopy(function: MutableList<T>.() -> Unit): Array<T> =
+        toMutableList().also { function(it) }.toTypedArray()
+
     fun <K, V> Map<K, V>.moveEntryToTop(matcher: (Map.Entry<K, V>) -> Boolean): Map<K, V> {
         val entry = entries.find(matcher)
         if (entry != null) {
