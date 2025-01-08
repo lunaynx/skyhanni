@@ -64,7 +64,7 @@ object RiftBloodEffigies {
         "Effigies: (?<hearts>(?:(?:§[7c])?⧯)*)"
     )
 
-    private fun getIndex(entity: EntityArmorStand) =
+    private fun getIndex(entity: EntityArmorStand): Int? =
         locations.minByOrNull { it.distanceSq(entity.getLorenzVec()) }?.let { locations.indexOf(it) }
 
     @SubscribeEvent
