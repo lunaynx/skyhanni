@@ -74,14 +74,6 @@ object DailyQuestHelper {
     )
 
     /**
-     * REGEX-TEST: §eClick to start!
-     */
-    val clickToStartPattern by patternGroup.pattern(
-        "clicktostart",
-        "(?:§.)*Click to start!",
-    )
-
-    /**
      * REGEX-TEST: §a§lCOMPLETE
      */
     val completedPattern by patternGroup.pattern(
@@ -233,9 +225,7 @@ object DailyQuestHelper {
     }
 
     private fun Quest.needsTownBoardLocation(): Boolean = state.let { state ->
-        state == QuestState.READY_TO_COLLECT ||
-            state == QuestState.NOT_ACCEPTED ||
-            (this is RescueMissionQuest && state == QuestState.ACCEPTED)
+        state == QuestState.READY_TO_COLLECT || (this is RescueMissionQuest && state == QuestState.ACCEPTED)
     }
 
     fun render(display: MutableList<List<Any>>) {
@@ -280,7 +270,7 @@ object DailyQuestHelper {
             ""
         }
 
-        val stateText = if (quest !is UnknownQuest) {
+        val stateText = if (quest !is UnknownQuest && quest.state != QuestState.ACCEPTED) {
             "$stateColor[$state] §f"
         } else {
             ""

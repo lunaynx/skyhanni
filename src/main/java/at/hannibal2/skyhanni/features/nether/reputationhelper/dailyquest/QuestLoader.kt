@@ -79,7 +79,7 @@ object QuestLoader {
             return
         }
 
-        val state = if (green) QuestState.READY_TO_COLLECT else QuestState.NOT_ACCEPTED
+        val state = if (green) QuestState.READY_TO_COLLECT else QuestState.ACCEPTED
         DailyQuestHelper.update()
         addQuest(addQuest(name, state, needAmount))
     }
@@ -152,11 +152,6 @@ object QuestLoader {
                 DailyQuestHelper.update()
             }
 
-            val accepted = !stack.getLore().any { DailyQuestHelper.clickToStartPattern.matches(it) }
-            if (accepted && quest.state == QuestState.NOT_ACCEPTED) {
-                quest.state = QuestState.ACCEPTED
-                DailyQuestHelper.update()
-            }
             if (name == "Miniboss") {
                 fixMinibossAmount(quest, stack)
             }
@@ -195,7 +190,11 @@ object QuestLoader {
         for (text in storage.quests.toList()) {
             val split = text.split(":")
             val name = split[0]
-            val state = QuestState.valueOf(split[1])
+            val state = if (split[1] == "NOT_ACCEPTED") {
+                QuestState.ACCEPTED
+            } else {
+                QuestState.valueOf(split[1])
+            }
             val needAmount = split[2].toInt()
             val quest = addQuest(name, state, needAmount)
             if (quest is UnknownQuest) {
