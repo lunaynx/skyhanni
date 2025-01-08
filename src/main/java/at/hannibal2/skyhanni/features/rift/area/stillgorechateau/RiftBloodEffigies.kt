@@ -113,7 +113,7 @@ object RiftBloodEffigies {
     }
 
     @HandleEvent
-    fun onScoreboardChange(event: RawScoreboardUpdateEvent) {
+    fun onRawScoreboardChange(event: RawScoreboardUpdateEvent) {
         if (!isEnabled()) return
 
         val line = event.rawScoreboard.firstOrNull { it.startsWith("Effigies:") } ?: return
