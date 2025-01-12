@@ -108,7 +108,7 @@ object DailyQuestHelper {
         QuestLoader.loadFromTabList()
     }
 
-    @SubscribeEvent
+    @HandleEvent
     fun onSecondPassed(event: SecondPassedEvent) {
         if (!isEnabled()) return
 
@@ -121,7 +121,7 @@ object DailyQuestHelper {
         CrimsonIsleReputationHelper.update()
     }
 
-    @SubscribeEvent
+    @HandleEvent
     fun onBackgroundDrawn(event: GuiContainerEvent.BackgroundDrawnEvent) {
         if (!isEnabled()) return
 
