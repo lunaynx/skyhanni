@@ -50,7 +50,7 @@ class SlayerConfig {
     @Expose
     @ConfigOption(
         name = "Block Not Spawnable",
-        desc = "Prevent clicking slayer bosses that cannot be started in the current dimension in Maddox's menu.",
+        desc = "Prevent clicking slayer bosses that cannot be spawned in the current dimension in Maddox's menu.",
     )
     @ConfigEditorBoolean
     @FeatureToggle
