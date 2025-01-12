@@ -1,12 +1,13 @@
 package at.hannibal2.skyhanni.features.slayer
 
 import at.hannibal2.skyhanni.SkyHanniMod
+import at.hannibal2.skyhanni.api.event.HandleEvent
 import at.hannibal2.skyhanni.events.GuiContainerEvent
 import at.hannibal2.skyhanni.skyhannimodule.SkyHanniModule
 import at.hannibal2.skyhanni.utils.ItemUtils.getLore
+import at.hannibal2.skyhanni.utils.LorenzUtils
 import at.hannibal2.skyhanni.utils.RegexUtils.anyMatches
 import at.hannibal2.skyhanni.utils.repopatterns.RepoPattern
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent
 
 @SkyHanniModule
 object BlockNotSpawnable {
@@ -21,7 +22,7 @@ object BlockNotSpawnable {
         "§c(?:Only inside The Rift!|Doesn't exist here!)",
     )
 
-    @SubscribeEvent
+    @HandleEvent
     fun onSlotClick(event: GuiContainerEvent.SlotClickEvent) {
         if (!isEnabled()) return
 
@@ -33,5 +34,5 @@ object BlockNotSpawnable {
         }
     }
 
-    private fun isEnabled() = config.blockNotSpawnable
+    private fun isEnabled() = LorenzUtils.inSkyBlock && config.blockNotSpawnable
 }
