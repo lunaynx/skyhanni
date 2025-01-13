@@ -175,7 +175,7 @@ object QuestLoader {
             DelayedRun.runNextTick {
                 DailyQuestHelper.quests.remove(quest)
                 DailyQuestHelper.quests.add(newQuest)
-                ChatUtils.chat("Fixed wrong miniboss amount from tab list.")
+                ChatUtils.chat("Fixed wrong miniboss amount from Town Board.")
                 DailyQuestHelper.update()
             }
         }
