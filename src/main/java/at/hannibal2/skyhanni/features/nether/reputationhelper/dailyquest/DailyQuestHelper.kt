@@ -326,7 +326,7 @@ object DailyQuestHelper {
             } else {
                 oldQuest.state = QuestState.READY_TO_COLLECT
             }
-            reputationHelper.update()
+            CrimsonIsleReputationHelper.update()
         }
     }
 
