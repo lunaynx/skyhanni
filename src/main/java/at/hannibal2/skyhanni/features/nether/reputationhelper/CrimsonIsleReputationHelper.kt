@@ -128,7 +128,7 @@ object CrimsonIsleReputationHelper {
                 DailyMiniBossHelper.run {
                     addDailyMiniBoss()
                 }
-                KuudraBossHelper.run {
+                DailyKuudraBossHelper.run {
                     addKuudraBoss()
                 }
             }
