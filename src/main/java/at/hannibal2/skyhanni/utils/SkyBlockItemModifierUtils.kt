@@ -3,7 +3,6 @@ package at.hannibal2.skyhanni.utils
 import at.hannibal2.skyhanni.config.ConfigManager
 import at.hannibal2.skyhanni.data.PetAPI
 import at.hannibal2.skyhanni.mixins.hooks.ItemStackCachedData
-import at.hannibal2.skyhanni.utils.CollectionUtils.addIfAbsent
 import at.hannibal2.skyhanni.utils.ItemUtils.extraAttributes
 import at.hannibal2.skyhanni.utils.ItemUtils.getInternalName
 import at.hannibal2.skyhanni.utils.ItemUtils.getLore
@@ -142,19 +141,19 @@ object SkyBlockItemModifierUtils {
         val witherShield = "WITHER_SHIELD_SCROLL".toInternalName()
         val shadowWarp = "SHADOW_WARP_SCROLL".toInternalName()
 
-        val scrolls = mutableListOf<NEUInternalName>()
+        val scrolls = mutableSetOf<NEUInternalName>()
 
         if (it.hasKey("ability_scroll", Constants.NBT.TAG_LIST)) {
             val tagList = it.getTagList("ability_scroll", Constants.NBT.TAG_STRING)
             for (i in 0 until tagList.tagCount()) {
                 val scroll = tagList.getStringTagAt(i).toInternalName()
                 if (scroll == ultimateWitherScroll) {
-                    scrolls.addIfAbsent(implosion)
-                    scrolls.addIfAbsent(witherShield)
-                    scrolls.addIfAbsent(shadowWarp)
+                    scrolls.add(implosion)
+                    scrolls.add(witherShield)
+                    scrolls.add(shadowWarp)
                     continue
                 }
-                scrolls.addIfAbsent(scroll)
+                scrolls.add(scroll)
             }
         }
 
