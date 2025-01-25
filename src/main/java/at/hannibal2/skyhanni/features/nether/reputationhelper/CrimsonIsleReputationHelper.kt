@@ -26,7 +26,7 @@ import at.hannibal2.skyhanni.utils.ConfigUtils
 import at.hannibal2.skyhanni.utils.KeyboardManager.isKeyHeld
 import at.hannibal2.skyhanni.utils.LorenzUtils.isInIsland
 import at.hannibal2.skyhanni.utils.LorenzVec
-import at.hannibal2.skyhanni.utils.NEUItems
+import at.hannibal2.skyhanni.utils.NeuItems
 import at.hannibal2.skyhanni.utils.RenderUtils.renderRenderables
 import at.hannibal2.skyhanni.utils.renderables.Renderable
 import at.hannibal2.skyhanni.utils.repopatterns.RepoPattern
@@ -135,10 +135,9 @@ object CrimsonIsleReputationHelper {
         }
     }
 
-    @HandleEvent(priority = HandleEvent.LOWEST)
+    @HandleEvent(priority = HandleEvent.LOWEST, onlyOnIsland = IslandType.CRIMSON_ISLE)
     fun onRenderOverlay(event: GuiRenderEvent.GuiOverlayRenderEvent) {
         if (!config.enabled.get()) return
-        if (!IslandType.CRIMSON_ISLE.isInIsland()) return
 
         if (config.useHotkey && !isHotkeyHeld()) {
             return
@@ -155,7 +154,7 @@ object CrimsonIsleReputationHelper {
             it == null || it is GuiInventory
         }
         if (!isAllowedGui) return false
-        if (NEUItems.neuHasFocus()) return false
+        if (NeuItems.neuHasFocus()) return false
 
         return config.hotkey.isKeyHeld()
     }

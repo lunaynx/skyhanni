@@ -1,14 +1,14 @@
 package at.hannibal2.skyhanni.config.commands
 
 import at.hannibal2.skyhanni.SkyHanniMod
-import at.hannibal2.skyhanni.api.SkillAPI
+import at.hannibal2.skyhanni.api.SkillApi
 import at.hannibal2.skyhanni.api.event.HandleEvent
 import at.hannibal2.skyhanni.config.ConfigFileType
 import at.hannibal2.skyhanni.config.ConfigGuiManager
 import at.hannibal2.skyhanni.data.ChatManager
 import at.hannibal2.skyhanni.data.GardenCropMilestonesCommunityFix
-import at.hannibal2.skyhanni.data.PartyAPI
-import at.hannibal2.skyhanni.data.SackAPI
+import at.hannibal2.skyhanni.data.PartyApi
+import at.hannibal2.skyhanni.data.SackApi
 import at.hannibal2.skyhanni.data.ScoreboardData
 import at.hannibal2.skyhanni.data.TitleManager
 import at.hannibal2.skyhanni.data.TrackerManager
@@ -36,7 +36,7 @@ import at.hannibal2.skyhanni.features.event.jerry.frozentreasure.FrozenTreasureT
 import at.hannibal2.skyhanni.features.fishing.tracker.FishingProfitTracker
 import at.hannibal2.skyhanni.features.fishing.tracker.SeaCreatureTracker
 import at.hannibal2.skyhanni.features.garden.FarmingMilestoneCommand
-import at.hannibal2.skyhanni.features.garden.GardenAPI
+import at.hannibal2.skyhanni.features.garden.GardenApi
 import at.hannibal2.skyhanni.features.garden.GardenCropTimeCommand
 import at.hannibal2.skyhanni.features.garden.GardenCropsInCommand
 import at.hannibal2.skyhanni.features.garden.SensitivityReducer
@@ -89,7 +89,7 @@ import at.hannibal2.skyhanni.test.command.CopyScoreboardCommand
 import at.hannibal2.skyhanni.test.command.TestChatCommand
 import at.hannibal2.skyhanni.test.command.TrackParticlesCommand
 import at.hannibal2.skyhanni.test.command.TrackSoundsCommand
-import at.hannibal2.skyhanni.utils.APIUtils
+import at.hannibal2.skyhanni.utils.ApiUtils
 import at.hannibal2.skyhanni.utils.ExtendedChatColor
 import at.hannibal2.skyhanni.utils.ItemPriceUtils
 import at.hannibal2.skyhanni.utils.SoundUtils
@@ -99,7 +99,10 @@ import at.hannibal2.skyhanni.utils.repopatterns.RepoPatternGui
 
 @SkyHanniModule
 @Suppress("LargeClass", "LongMethod")
+@Deprecated("do not use this class anymore")
 object Commands {
+    // Do not add new commands in this class
+    // TODO move all command loading away from this class
 
     val commandList = mutableListOf<CommandBuilder>()
 
@@ -247,8 +250,8 @@ object Commands {
         event.register("shskills") {
             description = "Skills XP/Level related command"
             category = CommandCategory.USERS_ACTIVE
-            callback { SkillAPI.onCommand(it) }
-            autoComplete { SkillAPI.onComplete(it) }
+            callback { SkillApi.onCommand(it) }
+            autoComplete { SkillApi.onComplete(it) }
         }
         event.register("shlimbostats") {
             description = "Prints your Limbo Stats.\n §7This includes your Personal Best, Playtime, and §aSkyHanni User Luck§7!"
@@ -372,7 +375,7 @@ object Commands {
         event.register("shresetcropspeed") {
             description = "Resets garden crop speed data and best crop time data"
             category = CommandCategory.USERS_RESET
-            callback { GardenAPI.resetCropSpeed() }
+            callback { GardenApi.resetCropSpeed() }
         }
         event.register("shresetkismet") {
             description = "Resets the saved values of the applied kismet feathers in Croesus"
@@ -425,7 +428,7 @@ object Commands {
         event.register("shtogglehypixelapierrors") {
             description = "Show/hide hypixel api error messages in chat"
             category = CommandCategory.USERS_BUG_FIX
-            callback { APIUtils.toggleApiErrorMessages() }
+            callback { ApiUtils.toggleApiErrorMessages() }
         }
         event.register("shfixminions") {
             description = "Removed bugged minion locations from your private island"
@@ -534,7 +537,7 @@ object Commands {
         event.register("shtestsackapi") {
             description = "Get the amount of an item in sacks according to internal feature SackAPI"
             category = CommandCategory.DEVELOPER_DEBUG
-            callback { SackAPI.testSackAPI(it) }
+            callback { SackApi.testSackApi(it) }
         }
         event.register("shtestgriffinspots") {
             description = "Show potential griffin spots around you."
@@ -685,7 +688,7 @@ object Commands {
         event.register("shpartydebug") {
             description = "List persons into the chat SkyHanni thinks are in your party."
             category = CommandCategory.DEVELOPER_TEST
-            callback { PartyAPI.listMembers() }
+            callback { PartyApi.listMembers() }
         }
         event.register("shplaysound") {
             description = "Play the specified sound effect at the given pitch and volume."
