@@ -106,11 +106,6 @@ object RepoUtils {
     }
 
     @JvmStatic
-    fun updateRepo() {
-        RepoManager.updateRepo()
-    }
-
-    @JvmStatic
     fun resetRepoLocation() {
         RepoManager.resetRepositoryLocation(manual = true)
     }

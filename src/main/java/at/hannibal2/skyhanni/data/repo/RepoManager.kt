@@ -84,6 +84,7 @@ object RepoManager {
 
     private val atomicShouldManuallyReload = AtomicBoolean(false)// TODO remove the workaround
 
+    @JvmStatic
     fun updateRepo() {
         atomicShouldManuallyReload.set(true)
         checkRepoLocation()
