@@ -16,14 +16,17 @@ class EnchantsJson {
     @SerializedName("STACKING")
     var stacking: HashMap<String, Enchant.Stacking> = hashMapOf()
 
-    fun getFromLore(passedLoreName: String): Enchant {
-        val loreName = passedLoreName.lowercase()
-        var enchant: Enchant? = normal[loreName]
-        if (enchant == null) enchant = ultimate[loreName]
-        if (enchant == null) enchant = stacking[loreName]
-        if (enchant == null) enchant = Enchant.Dummy(passedLoreName)
-        return enchant
+    fun getFromLore(passedLoreName: String) = passedLoreName.lowercase().let { loreName ->
+        normal[loreName]
+            ?: ultimate[loreName]
+            ?: stacking[loreName]
+            ?: Enchant.Dummy(passedLoreName)
     }
+
+    fun getFromNbt(nbtName: String) =
+        sequenceOf(normal.values, ultimate.values, stacking.values)
+            .flatMap { it.asSequence() }
+            .firstOrNull { it.nbtName == nbtName }
 
     fun containsEnchantment(enchants: Map<String, Int>, line: String): Boolean {
         val exclusiveMatch = EnchantParser.enchantmentExclusivePattern.matcher(line)

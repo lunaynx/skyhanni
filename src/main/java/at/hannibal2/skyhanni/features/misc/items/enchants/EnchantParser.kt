@@ -84,7 +84,8 @@ object EnchantParser {
     val isSbaLoaded by lazy { Loader.isModLoaded("skyblockaddons") }
 
     // Maps for all enchants
-    private var enchants: EnchantsJson = EnchantsJson()
+    var enchants: EnchantsJson = EnchantsJson()
+        private set
 
     @HandleEvent
     fun onRepoReload(event: RepositoryReloadEvent) {

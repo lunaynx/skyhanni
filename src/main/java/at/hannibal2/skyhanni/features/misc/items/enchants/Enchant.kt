@@ -7,8 +7,10 @@ import at.hannibal2.skyhanni.utils.ItemUtils.getInternalNameOrNull
 import at.hannibal2.skyhanni.utils.ItemUtils.getItemCategoryOrNull
 import at.hannibal2.skyhanni.utils.ItemUtils.itemName
 import at.hannibal2.skyhanni.utils.LorenzColor
+import at.hannibal2.skyhanni.utils.NeuInternalName
 import at.hannibal2.skyhanni.utils.StringUtils.removeColor
 import com.google.gson.annotations.Expose
+import com.google.gson.annotations.SerializedName
 import io.github.notenoughupdates.moulconfig.observer.Property
 import net.minecraft.item.ItemStack
 import java.util.TreeSet
@@ -24,7 +26,11 @@ open class Enchant : Comparable<Enchant> {
     private val goodLevel = 0
 
     @Expose
-    private val maxLevel = 0
+    val maxLevel = 0
+
+    @Expose
+    @SerializedName("endpoint_item")
+    var endpointItem = NeuInternalName.NONE
 
     private fun isNormal() = this is Normal
     private fun isUltimate() = this is Ultimate
