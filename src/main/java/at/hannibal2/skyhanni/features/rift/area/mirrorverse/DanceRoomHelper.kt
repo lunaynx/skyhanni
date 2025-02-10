@@ -89,7 +89,7 @@ object DanceRoomHelper {
 
     @HandleEvent(onlyOnIsland = IslandType.THE_RIFT)
     fun onRenderOverlay(event: GuiRenderEvent.GuiOverlayRenderEvent) {
-        if (!isEnabled()) return
+        if (!config.enabled) return
         if (!inRoom) return
         config.position.renderStrings(
             display,
@@ -108,7 +108,7 @@ object DanceRoomHelper {
         // We want this to run even if not enabled, so that the Hide Other Players feature
         // properly updates without the helper being enabled
         if (event.isMod(10)) {
-            inRoom = danceRoom.isPlayerInside()
+            inRoom = RiftApi.inMirrorVerse && danceRoom.isPlayerInside()
         }
         if (inRoom) {
             update()
@@ -117,7 +117,7 @@ object DanceRoomHelper {
 
     @HandleEvent(onlyOnIsland = IslandType.THE_RIFT)
     fun onPlaySound(event: PlaySoundEvent) {
-        if (!isEnabled() || !inRoom) return
+        if (!config.enabled || !inRoom) return
         if ((event.soundName == "random.burp" && event.volume == 0.8f) ||
             (event.soundName == "random.levelup" && event.pitch == 1.8412699f && event.volume == 1.0f)
         ) {
@@ -135,7 +135,7 @@ object DanceRoomHelper {
 
     @HandleEvent(onlyOnIsland = IslandType.THE_RIFT)
     fun onTitleReceived(event: TitleReceivedEvent) {
-        if (!isEnabled()) return
+        if (!config.enabled) return
         if (config.hideOriginalTitle && inRoom) event.cancel()
     }
 
@@ -181,8 +181,6 @@ object DanceRoomHelper {
             }
         }
     }
-
-    fun isEnabled() = config.enabled
 
     @HandleEvent
     fun onConfigFix(event: ConfigUpdaterMigrator.ConfigFixEvent) {
