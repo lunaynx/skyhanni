@@ -71,6 +71,7 @@ object GardenVisitorSupercraft {
 
     private fun getSupercraftForSacks(internalName: NeuInternalName, amount: Int) {
         val amountInSacks = internalName.getAmountInSacks()
+        if (amountInSacks >= amount) return
 
         val ingredients = NeuItems.getRecipes(internalName)
             // TODO describe what this line does
