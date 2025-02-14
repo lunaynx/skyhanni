@@ -70,6 +70,8 @@ object GardenVisitorSupercraft {
     }
 
     private fun getSupercraftForSacks(internalName: NeuInternalName, amount: Int) {
+        val amountInSacks = internalName.getAmountInSacks()
+
         val ingredients = NeuItems.getRecipes(internalName)
             // TODO describe what this line does
             .firstOrNull { !it.ingredients.first().internalName.contains("PEST") }
@@ -82,7 +84,7 @@ object GardenVisitorSupercraft {
         for ((key, value) in requiredIngredients) {
             val sackItem = key.getAmountInSacks()
             lastSuperCraftMaterial = internalName.asString()
-            if (sackItem < value * amount) {
+            if (sackItem < value * (amount - amountInSacks)) {
                 hasIngredients = false
                 break
             }
