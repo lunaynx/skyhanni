@@ -220,8 +220,9 @@ enum class SkyblockCurrency(
          */
         @HandleEvent
         private fun onNeuRepoReload() {
-            // the item name lookup needs NeuItems.allItemsCache, which is filled by another handler of this event
-            DelayedRun.runNextTick {
+            // The item name lookup needs NeuItems.allItemsCache, which another handler of this event rebuilds
+            // on the next tick. Running at the end of that tick puts this check after the rebuild.
+            DelayedRun.runNextTickEnd {
                 val conflicts = entries.mapNotNull { currency ->
                     val id = currency.internalName
                     val resolved = ItemNameResolver.getInternalNameOrNull(currency.displayName)
@@ -233,7 +234,7 @@ enum class SkyblockCurrency(
                         else -> null
                     }
                 }
-                if (conflicts.isEmpty()) return@runNextTick
+                if (conflicts.isEmpty()) return@runNextTickEnd
 
                 ErrorManager.logErrorStateWithData(
                     "A SkyHanni currency uses a wrong id, please report this in discord",
