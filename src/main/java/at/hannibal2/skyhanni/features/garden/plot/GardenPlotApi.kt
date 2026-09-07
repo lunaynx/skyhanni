@@ -347,7 +347,7 @@ object GardenPlotApi {
 
     @HandleEvent
     private fun onPlotChange() {
-        // Re-read the spray from the next tab list update, which is guaranteed to be for the new plot
+        // Re-read the spray from the next tab list update, which can be reasonably assumed to be for the new plot
         TabWidget.forceUpdateWidget(PESTS)
     }
 

@@ -126,7 +126,7 @@ enum class SkyblockCurrency(
     // the lore only writes "Tokens", the island is what makes it unambiguous
     KUUDRA_TOKEN(
         "KUUDRA_TOKEN".toInternalName(), "Tokens", DARK_PURPLE, loreNames = setOf("token", "tokens"),
-        island = IslandType.KUUDRA_ARENA,
+        island = KUUDRA_ARENA,
         ownedAmount = { getFromStorage() },
     ),
 
@@ -183,7 +183,6 @@ enum class SkyblockCurrency(
 
     @SkyHanniModule
     companion object {
-
         /**
          * REGEX-TEST: 5,000 Bits
          * REGEX-TEST: 40 Pests

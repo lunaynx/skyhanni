@@ -568,7 +568,6 @@ enum class TabWidget(
 
         /**
          * Makes the widget post a [WidgetUpdateEvent] on the next tab list update even if its lines are unchanged.
-         * Listeners are only fed fresh tab list data; the currently cached lines are never re-posted.
          */
         fun forceUpdateWidget(widget: TabWidget) {
             if (widget.isActive) {
