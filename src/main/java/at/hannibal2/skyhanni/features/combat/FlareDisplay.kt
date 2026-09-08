@@ -32,6 +32,7 @@ import at.hannibal2.skyhanni.utils.render.WorldRenderUtils.drawSphereWireframeIn
 import at.hannibal2.skyhanni.utils.renderables.Renderable
 import net.minecraft.core.particles.ParticleTypes
 import net.minecraft.world.entity.decoration.ArmorStand
+import java.util.concurrent.CopyOnWriteArrayList
 import kotlin.math.sin
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.minutes
@@ -42,7 +43,8 @@ object FlareDisplay {
 
     private val config get() = SkyHanniMod.feature.combat.flare
     private var display = emptyList<Renderable>()
-    private val flares = mutableListOf<Flare>()
+    // Read from the network thread in onParticle
+    private val flares = CopyOnWriteArrayList<Flare>()
     private val enabled get() = config.enabled
 
     private var activeWarning = false
@@ -204,7 +206,7 @@ object FlareDisplay {
     }
 
     @HandleEvent(onlyOnSkyblock = true)
-    fun onParticle(event: ParticleEvent) {
+    private fun onParticle(event: ParticleEvent) {
         if (!enabled) return
         if (!config.hideParticles) return
 

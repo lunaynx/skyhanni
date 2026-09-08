@@ -15,7 +15,9 @@ import net.minecraft.core.registries.BuiltInRegistries
  * suppresses the particle later in the packet handler, after other mixins have
  * had a chance to process it.
  *
- * Runs on the network thread.
+ * Runs on the network thread and fires exactly once per packet.
+ * Handlers must not query the entity list or other non-thread-safe game state;
+ * use [at.hannibal2.skyhanni.utils.DelayedRun.runOrNextTick] for anything that does not need to cancel the event.
  * Will only fire if the player is in the world
  *
  * @param type the particle type

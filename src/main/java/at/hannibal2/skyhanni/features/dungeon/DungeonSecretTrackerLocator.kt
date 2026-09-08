@@ -10,6 +10,7 @@ import at.hannibal2.skyhanni.events.chat.SkyHanniChatEvent
 import at.hannibal2.skyhanni.events.minecraft.SkyHanniRenderWorldEvent
 import at.hannibal2.skyhanni.skyhannimodule.SkyHanniModule
 import at.hannibal2.skyhanni.utils.BezierFitter
+import at.hannibal2.skyhanni.utils.DelayedRun
 import at.hannibal2.skyhanni.utils.ItemUtils.getInternalNameOrNull
 import at.hannibal2.skyhanni.utils.LorenzVec
 import at.hannibal2.skyhanni.utils.NeuInternalName.Companion.toInternalName
@@ -53,7 +54,7 @@ object DungeonSecretTrackerLocator {
     private val SECRET_COMPASS = "SECRET_TRACKER".toInternalName()
 
     @HandleEvent(receiveCancelled = true, onlyOnIsland = IslandType.CATACOMBS)
-    fun onParticle(event: ParticleEvent) {
+    private fun onParticle(event: ParticleEvent) {
         if (!isEnabled()) return
         val type = event.type
         if (type != ParticleTypes.HAPPY_VILLAGER) return
@@ -61,9 +62,9 @@ object DungeonSecretTrackerLocator {
 
         lastParticle = SimpleTimeMark.now()
 
-        if (!bezierFitter.tryAdd(event.location, maxDistanceToLast = 1.0, lastAbilityUse = lastAbilityUse)) return
-
-        repredictPoint()
+        DelayedRun.runOrNextTick {
+            if (bezierFitter.tryAdd(event.location, maxDistanceToLast = 1.0, lastAbilityUse = lastAbilityUse)) repredictPoint()
+        }
     }
 
     @HandleEvent(onlyOnIsland = IslandType.CATACOMBS)

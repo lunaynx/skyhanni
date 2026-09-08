@@ -59,7 +59,7 @@ object GriffinBurrowParticleFinder {
     }
 
     @HandleEvent(onlyOnIsland = IslandType.HUB, priority = HandleEvent.LOW, receiveCancelled = true)
-    fun onParticle(event: ParticleEvent) {
+    private fun onParticle(event: ParticleEvent) {
         if (!isEnabled()) return
         if (!config.guess) return
 
@@ -68,21 +68,23 @@ object GriffinBurrowParticleFinder {
         // TODO the rounding is a workaround, may need to be removed once we know what is going on exactly and can fix this properly
         val location = event.location.roundToBlock().down()
 
-        val burrow = burrows.getOrPut(location) { Burrow(location) }
-        val oldBurrowType = burrow.type
+        DelayedRun.runOrNextTick {
+            val burrow = burrows.getOrPut(location) { Burrow(location) }
+            val oldBurrowType = burrow.type
 
-        when (type) {
-            ParticleType.ENCHANT -> burrow.hasEnchant = true
-            ParticleType.EMPTY -> burrow.type = 0
-            ParticleType.MOB -> burrow.type = 1
-            ParticleType.TREASURE -> burrow.type = 2
-        }
+            when (type) {
+                ParticleType.ENCHANT -> burrow.hasEnchant = true
+                ParticleType.EMPTY -> burrow.type = 0
+                ParticleType.MOB -> burrow.type = 1
+                ParticleType.TREASURE -> burrow.type = 2
+            }
 
-        burrow.lastSeen = SimpleTimeMark.now()
-        if (burrow.hasEnchant && burrow.hasFootstep && burrow.type != -1) {
-            if (!burrow.found || burrow.type != oldBurrowType) {
-                DelayedRun.runOrNextTick { BurrowDetectEvent(burrow.location, burrow.getType()).post() }
-                burrow.found = true
+            burrow.lastSeen = SimpleTimeMark.now()
+            if (burrow.hasEnchant && burrow.hasFootstep && burrow.type != -1) {
+                if (!burrow.found || burrow.type != oldBurrowType) {
+                    BurrowDetectEvent(burrow.location, burrow.getType()).post()
+                    burrow.found = true
+                }
             }
         }
     }

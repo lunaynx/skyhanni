@@ -6,6 +6,7 @@ import at.hannibal2.skyhanni.events.minecraft.SkyHanniRenderWorldEvent
 import at.hannibal2.skyhanni.features.rift.RiftApi
 import at.hannibal2.skyhanni.skyhannimodule.SkyHanniModule
 import at.hannibal2.skyhanni.utils.ColorUtils.toChromaColor
+import at.hannibal2.skyhanni.utils.DelayedRun
 import at.hannibal2.skyhanni.utils.LorenzColor
 import at.hannibal2.skyhanni.utils.LorenzVec
 import at.hannibal2.skyhanni.utils.SimpleTimeMark
@@ -22,17 +23,20 @@ object SplatterHearts {
     private val currentHearts = mutableSetOf<LorenzVec>()
 
     @HandleEvent(receiveCancelled = true)
-    fun onParticle(event: ParticleEvent) {
+    private fun onParticle(event: ParticleEvent) {
         if (!isEnabled()) return
         if (event.type != ParticleTypes.HEART) return
         if (event.count != 3 || event.speed != 0f) return
 
-        if (lastHearts.passedSince() > 50.milliseconds) {
-            shownHearts = currentHearts.toSet()
-            currentHearts.clear()
-        }
+        val newGroup = lastHearts.passedSince() > 50.milliseconds
         lastHearts = SimpleTimeMark.now()
-        currentHearts += event.location
+        DelayedRun.runOrNextTick {
+            if (newGroup) {
+                shownHearts = currentHearts.toSet()
+                currentHearts.clear()
+            }
+            currentHearts += event.location
+        }
     }
 
     @HandleEvent

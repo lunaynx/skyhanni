@@ -34,7 +34,7 @@ object PreciseGuessBurrow {
     }
 
     @HandleEvent(onlyOnIsland = IslandType.HUB, receiveCancelled = true)
-    fun onParticle(event: ParticleEvent) {
+    private fun onParticle(event: ParticleEvent) {
         if (!isEnabled()) return
         val type = event.type
         if (type != ParticleTypes.DRIPPING_LAVA) return
@@ -42,30 +42,30 @@ object PreciseGuessBurrow {
         if (event.speed != -0.5f) return
         lastLavaParticle = SimpleTimeMark.now()
         if (lastDianaSpade.passedSince() > 3.seconds) return
-        GriffinBurrowHelper.removeSpadeWarnTitle()
 
-        if (!bezierFitter.tryAdd(event.location, maxDistanceToLast = 3.0)) return
+        DelayedRun.runOrNextTick {
+            GriffinBurrowHelper.removeSpadeWarnTitle()
 
-        if (bezierFitter.count() < 6) {
-            val duration = (6 - bezierFitter.count()) * 100
-            BurrowWarpHelper.blockWarp(duration.milliseconds)
-        }
+            if (!bezierFitter.tryAdd(event.location, maxDistanceToLast = 3.0)) return@runOrNextTick
 
-        val guessPosition = guessBurrowLocation() ?: return
+            if (bezierFitter.count() < 6) {
+                val duration = (6 - bezierFitter.count()) * 100
+                BurrowWarpHelper.blockWarp(duration.milliseconds)
+            }
 
-        val guessEntry = GuessEntry(
-            listOf(guessPosition.down(0.5).roundToBlock()),
-            spadeGuess = true,
-        )
+            val guessPosition = guessBurrowLocation() ?: return@runOrNextTick
 
-        if (lastGuess?.getCurrent() != guessEntry.getCurrent()) {
-            DelayedRun.runOrNextTick {
+            val guessEntry = GuessEntry(
+                listOf(guessPosition.down(0.5).roundToBlock()),
+                spadeGuess = true,
+            )
+
+            if (lastGuess?.getCurrent() != guessEntry.getCurrent()) {
                 lastGuess?.let { GriffinBurrowHelper.removeGuess(it, "moving spade guess", logAsPossibleBurrow = false) }
                 BurrowGuessEvent(guessEntry, "spade guess").post()
                 lastGuess = guessEntry
             }
         }
-
     }
 
     private fun guessBurrowLocation(): LorenzVec? = bezierFitter.solve()

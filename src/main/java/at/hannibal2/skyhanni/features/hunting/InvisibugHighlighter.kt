@@ -32,20 +32,21 @@ object InvisibugHighlighter {
     private var locationsToRender = listOf<LorenzVec>()
 
     @HandleEvent(onlyOnIsland = IslandType.GALATEA, receiveCancelled = true)
-    fun onParticle(event: ParticleEvent) {
+    private fun onParticle(event: ParticleEvent) {
         if (!config.enabled) return
+        if (event.type != ParticleTypes.CRIT) return
 
-        val particle = event.type
-        if (particle != ParticleTypes.CRIT) return
-        if (invisibugEntities.any { it.distanceTo(event.location) < DISTANCE }) return
+        DelayedRun.runOrNextTick {
+            val location = event.location
+            if (invisibugEntities.any { it.distanceTo(location) < DISTANCE }) return@runOrNextTick
 
-        val aabb = event.location.boundingCenter(DISTANCE)
-        val nearestArmorStand = EntityUtils.getEntitiesInBoundingBox<ArmorStand>(aabb).minByOrNull { it.distanceTo(event.location) } ?: return
+            val aabb = location.boundingCenter(DISTANCE)
+            val nearestArmorStand = EntityUtils.getEntitiesInBoundingBox<ArmorStand>(aabb).minByOrNull { it.distanceTo(location) }
+                ?: return@runOrNextTick
+            if (!nearestArmorStand.isCompletelyDefault()) return@runOrNextTick
 
-        if (!nearestArmorStand.isCompletelyDefault()) return
-
-        DelayedRun.runOrNextTick { invisibugEntities.add(nearestArmorStand) }
-
+            invisibugEntities.add(nearestArmorStand)
+        }
     }
 
     private val renderOffset = LorenzVec(0.4, -0.2, 0.4)

@@ -39,7 +39,7 @@ object FishingHotspotRadar {
     private var isUnknown = false
 
     @HandleEvent(receiveCancelled = true, onlyOnSkyblock = true)
-    fun onParticle(event: ParticleEvent) {
+    private fun onParticle(event: ParticleEvent) {
         if (!isEnabled()) return
         val type = event.type
         if (type != ParticleTypes.FLAME) return
@@ -47,18 +47,18 @@ object FishingHotspotRadar {
 
         lastParticle = SimpleTimeMark.now()
 
-        if (!bezierFitter.tryAdd(event.location, maxDistanceToLast = 3.0, lastAbilityUse = lastAbilityUse)) return
+        DelayedRun.runOrNextTick {
+            if (!bezierFitter.tryAdd(event.location, maxDistanceToLast = 3.0, lastAbilityUse = lastAbilityUse)) return@runOrNextTick
 
-        val guess = bezierFitter.solve() ?: return
-        if (!SkyBlockUtils.currentIsland.isInBounds(guess)) {
-            hotspotLocation = null
-            return
-        }
-        hotspotLocation = guess
-        isUnknown = false
-        lastUpdate = SimpleTimeMark.now()
-        hotspotLocation?.let {
-            DelayedRun.runNextTick { pathFind(it) }
+            val guess = bezierFitter.solve() ?: return@runOrNextTick
+            if (!SkyBlockUtils.currentIsland.isInBounds(guess)) {
+                hotspotLocation = null
+                return@runOrNextTick
+            }
+            hotspotLocation = guess
+            isUnknown = false
+            lastUpdate = SimpleTimeMark.now()
+            pathFind(guess)
         }
     }
 

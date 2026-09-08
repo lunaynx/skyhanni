@@ -5,6 +5,7 @@ import at.hannibal2.skyhanni.data.ElectionApi.derpy
 import at.hannibal2.skyhanni.data.mob.MobFilter.isRealPlayer
 import at.hannibal2.skyhanni.features.dungeon.DungeonApi
 import at.hannibal2.skyhanni.skyhannimodule.SkyHanniModule
+import at.hannibal2.skyhanni.test.command.ErrorManager
 import at.hannibal2.skyhanni.utils.ItemUtils.getSkullTexture
 import at.hannibal2.skyhanni.utils.LocationUtils.canBeSeen
 import at.hannibal2.skyhanni.utils.LocationUtils.distanceTo
@@ -192,6 +193,16 @@ object EntityUtils {
     // and then filters both for entity type and with the predicate for entities inside those chunks.
     inline fun <reified E : Entity> getEntitiesInBoundingBox(aabb: AABB, noinline predicate: (E) -> Boolean = ALWAYS): List<E> {
         val world = MinecraftCompat.localWorldOrNull ?: return emptyList()
+        // getEntitiesOfClass lazily mutates the entity section maps, so an off-thread call corrupts them
+        if (!Minecraft.getInstance().isSameThread) {
+            ErrorManager.logErrorStateWithData(
+                "Entity lookup off the main thread",
+                "getEntitiesInBoundingBox called off the main thread",
+                "entityClass" to E::class.java.name,
+                "thread" to Thread.currentThread().name,
+            )
+            return emptyList()
+        }
         return world.getEntitiesOfClass(E::class.java, aabb, predicate)
     }
 

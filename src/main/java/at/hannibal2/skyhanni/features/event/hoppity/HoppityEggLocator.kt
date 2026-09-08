@@ -171,14 +171,16 @@ object HoppityEggLocator {
         if (!event.isVillagerParticle()) return
         if (lastClick.passedSince() > 5.seconds) return
 
-        val endCondition: (LorenzVec) -> Boolean = { it.getEntitiesNearby<FishingHook>(0.3).any() }
-        if (!bezierFitter.tryAdd(event.location, maxDistanceToLast = 3.0, endCondition = endCondition)) return
+        DelayedRun.runOrNextTick {
+            val endCondition: (LorenzVec) -> Boolean = { it.getEntitiesNearby<FishingHook>(0.3).any() }
+            if (!bezierFitter.tryAdd(event.location, maxDistanceToLast = 3.0, endCondition = endCondition)) return@runOrNextTick
 
-        val guess = guessEggLocation() ?: return
-        possibleEggLocations = listOf(guess)
-        drawLocations = true
-        warningPending = false
-        trySendingGraph()
+            val guess = guessEggLocation() ?: return@runOrNextTick
+            possibleEggLocations = listOf(guess)
+            drawLocations = true
+            warningPending = false
+            trySendingGraph()
+        }
     }
 
     @HandleEvent(onlyOnSkyblock = true)
