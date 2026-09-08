@@ -2,11 +2,11 @@ package at.hannibal2.skyhanni.utils.collection
 
 import at.hannibal2.skyhanni.utils.MinMaxNumber
 import at.hannibal2.skyhanni.utils.SimpleTimeMark
+import com.google.common.collect.MapMaker
 import java.util.Collections
 import java.util.EnumMap
 import java.util.PriorityQueue
 import java.util.Queue
-import java.util.WeakHashMap
 import java.util.regex.Pattern
 import kotlin.collections.filterNot
 import kotlin.math.ceil
@@ -29,8 +29,8 @@ object CollectionUtils {
         return list
     }
 
-    // Let garbage collector handle the removal of entries in this list
-    fun <T> weakReferenceList(): MutableSet<T> = Collections.newSetFromMap(WeakHashMap<T, Boolean>())
+    // Let garbage collector handle the removal of entries in this set. Safe to read and write from any thread.
+    fun <T : Any> weakReferenceList(): MutableSet<T> = Collections.newSetFromMap(MapMaker().weakKeys().makeMap<T, Boolean>())
 
     fun <T> MutableList<T>.filterToMutable(predicate: (T) -> Boolean) = filterTo(mutableListOf(), predicate)
 

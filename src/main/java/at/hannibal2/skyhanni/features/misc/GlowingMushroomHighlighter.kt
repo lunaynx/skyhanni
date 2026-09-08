@@ -5,6 +5,7 @@ import at.hannibal2.skyhanni.api.event.HandleEvent
 import at.hannibal2.skyhanni.data.IslandType
 import at.hannibal2.skyhanni.events.ParticleEvent
 import at.hannibal2.skyhanni.skyhannimodule.SkyHanniModule
+import at.hannibal2.skyhanni.utils.DelayedRun
 import at.hannibal2.skyhanni.utils.NumberUtil.roundTo
 import at.hannibal2.skyhanni.utils.blockhighlight.SkyHanniBlockHighlighter
 import at.hannibal2.skyhanni.utils.blockhighlight.TimedHighlightBlock
@@ -29,7 +30,7 @@ object GlowingMushroomHighlighter {
     }
 
     @HandleEvent(onlyOnIsland = IslandType.THE_FARMING_ISLANDS, receiveCancelled = true)
-    fun onParticle(event: ParticleEvent) {
+    private fun onParticle(event: ParticleEvent) {
         if (!isEnabled()) return
         if (event.type != ParticleTypes.ENTITY_EFFECT) return
 
@@ -38,6 +39,6 @@ object GlowingMushroomHighlighter {
         val offsetZ = (event.location.z % 1).roundTo(1).absoluteValue
 
         if (offsetX != 0.5 || offsetY != 0.1 || offsetZ != 0.5) return
-        blockHighlighter.addBlock(TimedHighlightBlock(event.location, 1.seconds))
+        DelayedRun.runOrNextTick { blockHighlighter.addBlock(TimedHighlightBlock(event.location, 1.seconds)) }
     }
 }

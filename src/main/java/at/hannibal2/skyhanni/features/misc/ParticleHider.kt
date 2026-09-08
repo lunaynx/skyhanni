@@ -5,12 +5,15 @@ import at.hannibal2.skyhanni.api.event.HandleEvent
 import at.hannibal2.skyhanni.config.ConfigUpdaterMigrator
 import at.hannibal2.skyhanni.data.IslandType
 import at.hannibal2.skyhanni.events.ParticleEvent
+import at.hannibal2.skyhanni.events.entity.EntityEnterWorldEvent
+import at.hannibal2.skyhanni.events.entity.EntityLeaveWorldEvent
 import at.hannibal2.skyhanni.features.dungeon.DungeonApi
 import at.hannibal2.skyhanni.skyhannimodule.SkyHanniModule
-import at.hannibal2.skyhanni.utils.EntityUtils.getEntitiesNearby
+import at.hannibal2.skyhanni.utils.LocationUtils.distanceTo
 import at.hannibal2.skyhanni.utils.compat.MinecraftCompat
 import net.minecraft.core.particles.ParticleTypes
 import net.minecraft.world.entity.projectile.hurtingprojectile.SmallFireball
+import java.util.concurrent.ConcurrentHashMap
 
 @SkyHanniModule
 object ParticleHider {
@@ -23,13 +26,31 @@ object ParticleHider {
     )
     private fun inM7Boss() = DungeonApi.inDungeon() && DungeonApi.dungeonFloor == "M7" && DungeonApi.inBossRoom
 
+    // Tracked passively because onParticle runs on the network thread and must not query the entity list
+    private val fireballs = ConcurrentHashMap.newKeySet<SmallFireball>()
+
     @HandleEvent
-    fun onParticle(event: ParticleEvent) {
+    private fun onEntityEnterWorld(event: EntityEnterWorldEvent<SmallFireball>) {
+        fireballs += event.entity
+    }
+
+    @HandleEvent
+    private fun onEntityLeaveWorld(event: EntityLeaveWorldEvent<SmallFireball>) {
+        fireballs -= event.entity
+    }
+
+    @HandleEvent
+    private fun onWorldChange() {
+        fireballs.clear()
+    }
+
+    @HandleEvent
+    private fun onParticle(event: ParticleEvent) {
         with(event) {
             val hideFarCancel = (config.hideFarParticles && distanceToPlayer > 40 && !inM7Boss())
             val hideCloseRedstoneCancel = (config.hideCloseRedstoneParticles && type == ParticleTypes.DUST && distanceToPlayer < 2)
             val hideFireballCancel = config.hideFireballParticles && type in smokeTypes &&
-                event.location.getEntitiesNearby<SmallFireball>(5.0).isNotEmpty()
+                fireballs.any { it.distanceTo(location) < 5.0 }
 
             if (hideFarCancel || hideCloseRedstoneCancel || hideFireballCancel) event.cancel()
         }

@@ -11,6 +11,7 @@ import at.hannibal2.skyhanni.events.minecraft.SkyHanniRenderWorldEvent
 import at.hannibal2.skyhanni.features.garden.plot.GardenPlotApi
 import at.hannibal2.skyhanni.skyhannimodule.SkyHanniModule
 import at.hannibal2.skyhanni.utils.ColorUtils.toColor
+import at.hannibal2.skyhanni.utils.DelayedRun
 import at.hannibal2.skyhanni.utils.LocationUtils
 import at.hannibal2.skyhanni.utils.LocationUtils.distanceToPlayerIgnoreY
 import at.hannibal2.skyhanni.utils.LorenzColor
@@ -50,7 +51,7 @@ object PestParticleWaypoint {
     }
 
     @HandleEvent(priority = HandleEvent.LOW, receiveCancelled = true, onlyOnIsland = IslandType.GARDEN)
-    fun onParticle(event: ParticleEvent) {
+    private fun onParticle(event: ParticleEvent) {
         if (!isEnabled()) return
 
         if (config.hideParticles && event.type == ParticleTypes.FIREWORK) event.cancel()
@@ -68,12 +69,14 @@ object PestParticleWaypoint {
 
         lastParticle = SimpleTimeMark.now()
 
-        val emptyCondition: (LorenzVec) -> Boolean = { it.distance(LocationUtils.playerLocation()) > 5 }
-        if (!bezierFitter.tryAdd(event.location, maxDistanceToLast = 3.0, emptyCondition = emptyCondition)) return
+        DelayedRun.runOrNextTick {
+            val emptyCondition: (LorenzVec) -> Boolean = { it.distance(LocationUtils.playerLocation()) > 5 }
+            if (!bezierFitter.tryAdd(event.location, maxDistanceToLast = 3.0, emptyCondition = emptyCondition)) return@runOrNextTick
 
-        val solved = bezierFitter.solve() ?: return
-        guessPosition = solved
-        isGuessPlotMiddle = GardenPlotApi.getPlot(solved)?.middle?.equalsIgnoreY(solved.ceil()) ?: false
+            val solved = bezierFitter.solve() ?: return@runOrNextTick
+            guessPosition = solved
+            isGuessPlotMiddle = GardenPlotApi.getPlot(solved)?.middle?.equalsIgnoreY(solved.ceil()) ?: false
+        }
     }
 
 

@@ -33,7 +33,7 @@ public abstract class MixinClientPacketListener {
         cancellable = true
     )
     public void postParticleEvent(ClientboundLevelParticlesPacket packet, CallbackInfo ci) {
-        if (ParticleUtils.shouldSuppressParticle()) {
+        if (ParticleUtils.shouldSuppressParticle(packet)) {
             ci.cancel();
         }
     }

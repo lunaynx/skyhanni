@@ -3,15 +3,16 @@ package at.hannibal2.skyhanni.features.rift.area.livingcave
 import at.hannibal2.skyhanni.api.event.HandleEvent
 import at.hannibal2.skyhanni.config.ConfigUpdaterMigrator
 import at.hannibal2.skyhanni.events.ParticleEvent
-import at.hannibal2.skyhanni.events.SecondPassedEvent
 import at.hannibal2.skyhanni.events.ServerBlockChangeEvent
+import at.hannibal2.skyhanni.events.entity.EntityEnterWorldEvent
+import at.hannibal2.skyhanni.events.entity.EntityLeaveWorldEvent
 import at.hannibal2.skyhanni.events.minecraft.SkyHanniRenderWorldEvent
 import at.hannibal2.skyhanni.features.rift.RiftApi
 import at.hannibal2.skyhanni.mixins.hooks.RenderLivingEntityHelper
 import at.hannibal2.skyhanni.skyhannimodule.SkyHanniModule
 import at.hannibal2.skyhanni.utils.ColorUtils.addAlpha
 import at.hannibal2.skyhanni.utils.ColorUtils.toColor
-import at.hannibal2.skyhanni.utils.EntityUtils.getEntitiesNearby
+import at.hannibal2.skyhanni.utils.DelayedRun
 import at.hannibal2.skyhanni.utils.EntityUtils.isAtFullHealth
 import at.hannibal2.skyhanni.utils.LocationUtils.distanceTo
 import at.hannibal2.skyhanni.utils.LorenzVec
@@ -25,6 +26,7 @@ import at.hannibal2.skyhanni.utils.render.WorldRenderUtils.drawWaypointFilled
 import at.hannibal2.skyhanni.utils.render.WorldRenderUtils.exactLocation
 import net.minecraft.client.player.RemotePlayer
 import net.minecraft.core.particles.ParticleTypes
+import java.util.concurrent.ConcurrentHashMap
 
 @SkyHanniModule
 object LivingCaveDefenseBlocks {
@@ -33,22 +35,45 @@ object LivingCaveDefenseBlocks {
     private var movingBlocks = mapOf<DefenseBlock, Long>()
     private var staticBlocks = emptyList<DefenseBlock>()
 
+    // Tracked passively because onParticle runs on the network thread and must not query the entity list
+    private val players = ConcurrentHashMap.newKeySet<RemotePlayer>()
+
     class DefenseBlock(val entity: RemotePlayer, val location: LorenzVec, var hidden: Boolean = false)
 
     @HandleEvent
-    fun onSecondPassed(event: SecondPassedEvent) {
+    private fun onEntityEnterWorld(event: EntityEnterWorldEvent<RemotePlayer>) {
+        players += event.entity
+    }
+
+    @HandleEvent
+    private fun onEntityLeaveWorld(event: EntityLeaveWorldEvent<RemotePlayer>) {
+        players -= event.entity
+    }
+
+    @HandleEvent
+    private fun onWorldChange() {
+        players.clear()
+    }
+
+    @HandleEvent
+    private fun onSecondPassed() {
         if (!isEnabled()) return
         staticBlocks = staticBlocks.editCopy { removeIf { it.entity.deceased } }
     }
 
-    @HandleEvent(receiveCancelled = true)
-    fun onParticle(event: ParticleEvent) {
+    @HandleEvent
+    private fun onTick() {
         if (!isEnabled()) return
-
         movingBlocks = movingBlocks.editCopy {
             values.removeIf { System.currentTimeMillis() > it + 2000 }
             keys.removeIf { staticBlocks.any { others -> others.location.distance(it.location) < 1.5 } }
         }
+    }
+
+    // Runs on the network thread: only reads the copy-on-write collections here, mutations are deferred to the main thread
+    @HandleEvent(receiveCancelled = true)
+    private fun onParticle(event: ParticleEvent) {
+        if (!isEnabled()) return
 
         val location = event.location.add(-0.5, 0.0, -0.5)
 
@@ -64,32 +89,24 @@ object LivingCaveDefenseBlocks {
         }
 
         if (event.type == ParticleTypes.ENCHANTED_HIT) {
-            var entity: RemotePlayer? = null
-
             // read old entity data
-            getNearestMovingDefenseBlock(location)?.let {
-                if (it.location.distance(location) < 0.5) {
-                    movingBlocks = movingBlocks.editCopy {
-                        it.hidden = true
-                    }
-                    entity = it.entity
-                }
-            }
+            val oldBlock = getNearestMovingDefenseBlock(location)?.takeIf { it.location.distance(location) < 0.5 }
 
-            if (entity == null) {
-                // read new entity data
-                val compareLocation = event.location.add(-0.5, -1.5, -0.5)
-                entity = compareLocation.getEntitiesNearby<RemotePlayer>(2.0)
-                    .filter { isCorrectMob(it.name.formattedTextCompatLessResets()) }
-                    .filter { !it.isAtFullHealth() }
-                    .minByOrNull { it.distanceTo(compareLocation) }
-            }
+            // read new entity data
+            val compareLocation = event.location.add(-0.5, -1.5, -0.5)
+            val entity = oldBlock?.entity ?: players
+                .filter { it.distanceTo(compareLocation) < 2.0 }
+                .filter { isCorrectMob(it.name.formattedTextCompatLessResets()) }
+                .filter { !it.isAtFullHealth() }
+                .minByOrNull { it.distanceTo(compareLocation) }
+                ?: return
 
-            val defenseBlock = entity?.let { DefenseBlock(it, location) } ?: return
-
-            movingBlocks = movingBlocks.editCopy { this[defenseBlock] = System.currentTimeMillis() + 250 }
             if (config.hideParticles) {
                 event.cancel()
+            }
+            DelayedRun.runOrNextTick {
+                oldBlock?.hidden = true
+                movingBlocks = movingBlocks.editCopy { this[DefenseBlock(entity, location)] = System.currentTimeMillis() + 250 }
             }
         }
     }

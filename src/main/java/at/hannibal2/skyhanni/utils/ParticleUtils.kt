@@ -18,26 +18,22 @@ object ParticleUtils {
     @JvmStatic
     fun postParticleEvent(packet: ClientboundLevelParticlesPacket) {
         if (!MinecraftCompat.localPlayerExists) return
-        cancelled.set(false)
-        if (ParticleEvent(
-                type = packet.particle.type,
-                location = packet.toLorenzVec(),
-                count = packet.count,
-                speed = packet.maxSpeed,
-                offset = packet.toOffset(),
-                longDistance = packet.isOverrideLimiter,
-            ).post().isCancelled
-        ) {
-            cancelled.set(true)
+        // handleParticleEvent runs once on the Netty thread and again on the main thread for the same packet
+        if (packet.`skyhanni$isEventPosted`()) return
+        packet.`skyhanni$setEventPosted`()
+        val event = ParticleEvent(
+            type = packet.particle.type,
+            location = packet.toLorenzVec(),
+            count = packet.count,
+            speed = packet.maxSpeed,
+            offset = packet.toOffset(),
+            longDistance = packet.isOverrideLimiter,
+        )
+        if (event.post().isCancelled) {
+            packet.`skyhanni$setCancelled`()
         }
     }
 
-    private val cancelled = ThreadLocal.withInitial { false }
-
     @JvmStatic
-    fun shouldSuppressParticle(): Boolean {
-        val wasCancelled = cancelled.get()
-        cancelled.set(false)
-        return wasCancelled
-    }
+    fun shouldSuppressParticle(packet: ClientboundLevelParticlesPacket): Boolean = packet.`skyhanni$isCancelled`()
 }

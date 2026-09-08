@@ -24,6 +24,7 @@ import net.minecraft.core.particles.ParticleTypes
 import net.minecraft.world.entity.Entity
 import net.minecraft.world.entity.decoration.ArmorStand
 import net.minecraft.world.entity.item.ItemEntity
+import java.util.concurrent.ConcurrentHashMap
 import kotlin.time.Duration.Companion.milliseconds
 
 @SkyHanniModule
@@ -31,7 +32,8 @@ object DungeonHideItems {
 
     private val config get() = SkyHanniMod.feature.dungeon.objectHider
 
-    private val hideParticles = mutableMapOf<ArmorStand, SimpleTimeMark>()
+    // Read from the network thread in onParticle
+    private val hideParticles = ConcurrentHashMap<ArmorStand, SimpleTimeMark>()
     private val movingSkeletonSkulls = mutableMapOf<ArmorStand, SimpleTimeMark>()
 
     private val SOUL_WEAVER_HIDER by SkullTextureHolder.texture("DUNGEONS_SOUL_WEAVER")
@@ -152,7 +154,7 @@ object DungeonHideItems {
     }
 
     @HandleEvent(onlyOnIsland = IslandType.CATACOMBS)
-    fun onParticle(event: ParticleEvent) {
+    private fun onParticle(event: ParticleEvent) {
         if (!config.hideSuperboomTNT && !config.hideReviveStone) return
 
         val packetLocation = event.location
