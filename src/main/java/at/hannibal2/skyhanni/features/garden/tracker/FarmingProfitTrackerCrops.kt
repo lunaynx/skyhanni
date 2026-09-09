@@ -51,6 +51,14 @@ object FarmingProfitTrackerCrops {
         "^BLESSED! You found an? (?<item>.+)!$",
     )
 
+    /**
+     * REGEX-TEST: MOSQUITO! You found an Enchanted Nether Wart!
+     */
+    private val mosquitoDropPattern by FarmingProfitTracker.patternGroup.pattern(
+        "mosquito.drop",
+        "^MOSQUITO! You found an? (?<item>.+)!$",
+    )
+
     private val blocksBrokenCache: MutableMap<CropType, Long> = EnumMap(CropType::class.java)
     private val pendingReplenishCosts: MutableMap<CropType, Long> = EnumMap(CropType::class.java)
     private val cropInternalNames = mutableMapOf<CropType, NeuInternalName>()
@@ -88,6 +96,7 @@ object FarmingProfitTrackerCrops {
     private fun onChat(event: SkyHanniChatEvent.Allow) {
         checkRareCropDrop(event.cleanMessage)
         checkBlessedDrop(event.cleanMessage)
+        checkMosquitoDrop(event.cleanMessage)
         checkCropFeverStart(event.cleanMessage)
         checkCropFeverDrop(event.cleanMessage)
         checkToolExpCapsule(event.cleanMessage)
@@ -160,6 +169,26 @@ object FarmingProfitTrackerCrops {
             FarmingProfitTracker.markActivity()
         }
     }
+
+    private fun checkMosquitoDrop(message: String) {
+        mosquitoDropPattern.matchMatcher(message) {
+            val internalName = NeuInternalName.fromItemNameOrNull(group("item")) ?: return
+            rememberSpecialCropItem(internalName, 1)
+            if (!FarmingProfitTracker.shouldTrack(TrackedSource.MOSQUITO)) return@matchMatcher
+            val primitiveStack = NeuItems.getPrimitiveMultiplier(internalName)
+            val crop = CropType.getByNameOrNull(primitiveStack.internalName.itemNameWithoutColor)
+
+            FarmingProfitTracker.addTrackedItem(TrackedSource.MOSQUITO, internalName, 1L)
+            FarmingProfitTracker.modify {
+                it.mosquitoDrops.addOrPut(internalName, 1)
+                crop?.let { cropType ->
+                    it.addCropAmount(cropType, TrackedSource.MOSQUITO, primitiveStack.amount.toLong())
+                }
+            }
+            FarmingProfitTracker.markActivity()
+        }
+    }
+
 
     private fun checkCropFeverStart(message: String) {
         if (!FarmingProfitTracker.shouldTrack(TrackedSource.CROP_FEVER)) return

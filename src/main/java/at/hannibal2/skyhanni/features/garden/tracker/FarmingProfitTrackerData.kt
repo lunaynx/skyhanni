@@ -27,6 +27,7 @@ data class FarmingProfitTrackerData(
     @Expose var rareCropDrops: MutableMap<RareCropDropType, Long> =
         EnumMap<RareCropDropType, Long>(RareCropDropType::class.java),
     @Expose var blessedDrops: MutableMap<NeuInternalName, Long> = mutableMapOf(),
+    @Expose var mosquitoDrops: MutableMap<NeuInternalName, Long> = mutableMapOf(),
     @Expose var cropFevers: MutableMap<CropType, Long> = EnumMap<CropType, Long>(CropType::class.java),
     @Expose var cropFeverDrops: MutableMap<RngDropEnum, Long> = EnumMap<RngDropEnum, Long>(RngDropEnum::class.java),
     @Expose var pestKills: MutableMap<PestType, Long> = EnumMap<PestType, Long>(PestType::class.java),
@@ -97,6 +98,7 @@ data class FarmingProfitTrackerData(
         TrackedSource.PESTS -> ProfitAction(getTotalPestKills(), "kill", "Kills")
         TrackedSource.RARE_CROPS -> ProfitAction(getTotalRareCropDrops(), "drop", "Drops")
         TrackedSource.BLESSED -> ProfitAction(getTotalBlessedDrops(), "drop", "Drops")
+        TrackedSource.MOSQUITO -> ProfitAction(getTotalMosquitoDrops(), "drop", "Drops")
         TrackedSource.CROP_FEVER -> cropFeverProfitAction()
         TrackedSource.BOUNTIFUL -> ProfitAction(bountifulCoins, "coin", "Coins")
         TrackedSource.VISITORS -> visitorProfitAction()
@@ -111,6 +113,7 @@ data class FarmingProfitTrackerData(
         ProfitAction(getTotalCropFevers(), "fever", "Fevers"),
         ProfitAction(getTotalRareCropDrops(), "drop", "Drops"),
         ProfitAction(getTotalBlessedDrops(), "drop", "Drops"),
+        ProfitAction(getTotalMosquitoDrops(), "drop", "Drops"),
         ProfitAction(getTotalCropFeverDrops(), "drop", "Drops"),
         ProfitAction(bountifulCoins, "coin", "Coins"),
     ).firstOrNull { it.amount > 0 } ?: ProfitAction(0, "crop", "Crops")
@@ -144,6 +147,9 @@ internal fun FarmingProfitTrackerData.getTotalSeasoningDrops(): Long =
 
 internal fun FarmingProfitTrackerData.getTotalBlessedDrops(): Long =
     if (isShowing(TrackedSource.BLESSED)) blessedDrops.values.sum() else 0L
+
+internal fun FarmingProfitTrackerData.getTotalMosquitoDrops(): Long =
+    if (isShowing(TrackedSource.MOSQUITO)) mosquitoDrops.values.sum() else 0L
 
 internal fun FarmingProfitTrackerData.getTotalCropFevers(): Long =
     if (isShowing(TrackedSource.CROP_FEVER)) cropFevers.values.sum() else 0L
@@ -183,6 +189,7 @@ internal fun FarmingProfitTrackerData.hasNoFarmingData(): Boolean =
         blocksBroken.isEmpty() &&
         rareCropDrops.isEmpty() &&
         blessedDrops.isEmpty() &&
+        mosquitoDrops.isEmpty() &&
         cropFevers.isEmpty() &&
         cropFeverDrops.isEmpty() &&
         pestKills.isEmpty() &&

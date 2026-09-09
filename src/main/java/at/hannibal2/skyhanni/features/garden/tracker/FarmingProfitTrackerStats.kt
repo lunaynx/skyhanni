@@ -25,6 +25,7 @@ object FarmingProfitTrackerStats {
                 DisplayStat.BLOCKS_BROKEN -> list.addBlocksBrokenLine(data)
                 DisplayStat.RARE_CROP_DROPS -> list.addRareCropLine(data)
                 DisplayStat.BLESSED_DROPS -> list.addBlessedLine(data)
+                DisplayStat.MOSQUITO_DROPS -> list.addMosquitoLine(data)
                 DisplayStat.CROP_FEVERS -> list.addCropFeversLine(data)
                 DisplayStat.CROP_FEVER_DROPS -> list.addCropFeverLine(data)
                 DisplayStat.PESTS_KILLED -> list.addPestLine(data)
@@ -105,6 +106,19 @@ object FarmingProfitTrackerStats {
                     "§7${drop.itemNameWithoutColor}: §e${amount.addSeparators()}"
                 },
             ).toSearchable("Blessed drops"),
+        )
+    }
+
+    private fun MutableList<Searchable>.addMosquitoLine(data: FarmingProfitTrackerData) {
+        val total = data.getTotalMosquitoDrops()
+        if (total == 0L) return
+        add(
+            Renderable.hoverTips(
+                "§9Mosquito drops: §9${total.addSeparators()}",
+                data.mosquitoDrops.entries.sortedBy { it.key.itemNameWithoutColor }.map { (drop, amount) ->
+                    "§7${drop.itemNameWithoutColor}: §e${amount.addSeparators()}"
+                },
+            ).toSearchable("Mosquito drops"),
         )
     }
 
